@@ -98,22 +98,30 @@ body{
   padding:14px 16px;margin-bottom:18px;
   box-shadow:0 1px 4px rgba(0,0,0,0.05);
 }
-.sb-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.sb-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .sb-title{font-size:13px;font-weight:700;color:var(--text);}
-.sb-nums{display:flex;gap:12px;align-items:center;}
-.sb-num{display:flex;flex-direction:column;align-items:center;gap:1px;}
-.sb-num .nv{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;line-height:1;}
+.carryover-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:700;
+  background:rgba(234,88,12,0.10);color:#ea580c;
+  border:1px solid rgba(234,88,12,0.25);
+  padding:3px 8px;border-radius:20px;
+}
+.sb-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;}
+.sb-num{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);
+  padding:10px 4px;
+}
+.sb-num .nv{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;line-height:1;}
 .sb-num .nl{font-size:10px;font-weight:600;color:var(--muted);}
 .sb-num.n-total .nv{color:var(--blue);}
 .sb-num.n-done  .nv{color:var(--green);}
 .sb-num.n-left  .nv{color:#d97706;}
-.prog-wrap{position:relative;}
-.prog-bg{height:8px;background:var(--bg);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.prog-wrap{display:flex;align-items:center;gap:10px;}
+.prog-bg{flex:1;height:8px;background:var(--bg);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
 .prog-fg{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:4px;transition:width .4s cubic-bezier(.4,0,.2,1);}
-.prog-pct{
-  position:absolute;right:0;top:-18px;
-  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--green);
-}
+.prog-pct{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--green);flex-shrink:0;min-width:36px;text-align:right;}
 
 /* 섹션 타이틀 */
 .sec-title{
@@ -197,6 +205,18 @@ body{
   border-color:rgba(22,163,74,.3);
   background:rgba(22,163,74,.02);
 }
+/* 이월 차량 카드 */
+.car-card.carryover-card{
+  border-color:rgba(234,88,12,.35);
+  background:rgba(234,88,12,.02);
+}
+.carryover-tag{
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:10px;font-weight:700;
+  background:rgba(234,88,12,.10);color:#ea580c;
+  border:1px solid rgba(234,88,12,.25);
+  padding:2px 7px;border-radius:5px;flex-shrink:0;
+}
 .car-card:last-child{margin-bottom:0;}
 
 /* 카드 상단 */
@@ -244,6 +264,7 @@ body{
 .cc-check-status{font-size:12px;font-weight:700;}
 .cc-check-status.s-wait{color:var(--muted);}
 .cc-check-status.s-done{color:var(--green);}
+.cc-check-status.s-carry{color:#ea580c;}
 .cc-check-hint{font-size:10px;color:var(--dim);}
 
 /* 큰 체크 버튼 */
@@ -345,17 +366,18 @@ body{
 
       <!-- 오늘 요약 -->
       <div class="summary-bar">
-        <div class="sb-row">
+        <div class="sb-title-row">
           <span class="sb-title" id="sb-daytitle">오늘 세차 현황</span>
-          <div class="sb-nums">
-            <div class="sb-num n-total"><div class="nv" id="sb-total">0</div><div class="nl">예정</div></div>
-            <div class="sb-num n-done"> <div class="nv" id="sb-done">0</div> <div class="nl">완료</div></div>
-            <div class="sb-num n-left"> <div class="nv" id="sb-left">0</div> <div class="nl">남은</div></div>
-          </div>
+          <span class="carryover-badge" id="sb-carryover" style="display:none">↩ 이월 0대</span>
+        </div>
+        <div class="sb-nums">
+          <div class="sb-num n-total"><div class="nv" id="sb-total">0</div><div class="nl">예정</div></div>
+          <div class="sb-num n-done"> <div class="nv" id="sb-done">0</div> <div class="nl">완료</div></div>
+          <div class="sb-num n-left"> <div class="nv" id="sb-left">0</div> <div class="nl">남은</div></div>
         </div>
         <div class="prog-wrap">
-          <div class="prog-pct" id="sb-pct">0%</div>
           <div class="prog-bg"><div class="prog-fg" id="sb-bar" style="width:0%"></div></div>
+          <span class="prog-pct" id="sb-pct">0%</span>
         </div>
       </div>
 
@@ -542,10 +564,36 @@ const APTS=[
 let activeDay = 'sun';
 let curApt    = null;
 
-// localStorage key: "w5_{aptId}_{carIdx}_{dayKey}" → "1" = done, "" = not done
-const sk  = (a,ci,d) => `w5_${a}_${ci}_${d}`;
-const isDone = (a,ci,d) => localStorage.getItem(sk(a,ci,d)) === '1';
+// 완료 상태: "w5_{aptId}_{ci}_{dayKey}" = '1'
+const sk      = (a,ci,d) => `w5_${a}_${ci}_${d}`;
+const isDone  = (a,ci,d) => localStorage.getItem(sk(a,ci,d)) === '1';
 const setDone = (a,ci,d,v) => v ? localStorage.setItem(sk(a,ci,d),'1') : localStorage.removeItem(sk(a,ci,d));
+
+// 요일 순서 (이월 계산용)
+const DAY_ORDER = ['sun','mon','tue','wed','thu'];
+
+/*
+  이월 로직:
+  선택한 요일에 세차 예정(sched)이지만 완료 안 된 차량 중에서,
+  이전 요일(들)에 같은 차량이 sched 있었고 완료 안 된 기록이 있으면 "이월된 차량"으로 표시.
+  
+  즉 "이 차량이 오늘 예정이고, 어제(또는 이전 예정일)에도 예정이었는데 완료 안 됐으면" → 이월 뱃지.
+*/
+function isCarryover(apt, ci, dayKey) {
+  const car = apt.cars[ci];
+  if (!car.sched.includes(dayKey)) return false; // 오늘 예정 아니면 해당없음
+  if (isDone(apt.id, ci, dayKey)) return false;  // 오늘 이미 완료면 이월 아님
+
+  const todayIdx = DAY_ORDER.indexOf(dayKey);
+  // 이전 요일 중 sched에 있고 완료 안 된 날이 있으면 이월
+  for (let i = 0; i < todayIdx; i++) {
+    const prevDay = DAY_ORDER[i];
+    if (car.sched.includes(prevDay) && !isDone(apt.id, ci, prevDay)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 /* ════════════════════════════════════
    UTILS
@@ -591,45 +639,57 @@ function buildDayTabs(){
 }
 
 function calcHomeSummary(){
-  let total=0, done=0;
+  let total=0, done=0, carryoverCount=0;
   APTS.forEach(apt=>apt.cars.forEach((car,ci)=>{
     if(!car.sched.includes(activeDay)) return;
     total++;
     if(isDone(apt.id,ci,activeDay)) done++;
+    else if(isCarryover(apt,ci,activeDay)) carryoverCount++;
   }));
   const left=total-done;
   const pct=total?Math.round(done/total*100):0;
   const dayName=DAYS.find(d=>d.key===activeDay)?.name;
+
   document.getElementById('sb-daytitle').textContent=`${dayName}요일 세차 현황`;
   document.getElementById('sb-total').textContent=total;
   document.getElementById('sb-done').textContent=done;
   document.getElementById('sb-left').textContent=left;
   document.getElementById('sb-pct').textContent=pct+'%';
   document.getElementById('sb-bar').style.width=pct+'%';
+
+  // 이월 배지
+  const badge=document.getElementById('sb-carryover');
+  if(carryoverCount>0){
+    badge.style.display='inline-flex';
+    badge.textContent=`↩ 이월 ${carryoverCount}대`;
+  } else {
+    badge.style.display='none';
+  }
 }
 
 function buildAptGrid(){
   const el=document.getElementById('apt-grid');
   el.innerHTML=APTS.map(apt=>{
-    // 해당 요일에 예정된 차량만
-    const scheduled=apt.cars.filter(c=>c.sched.includes(activeDay));
+    const scheduled=apt.cars.map((car,ci)=>({car,ci})).filter(({car})=>car.sched.includes(activeDay));
     const total=scheduled.length;
-    const done=scheduled.filter((_,i)=>{
-      const ci=apt.cars.indexOf(scheduled[i]);
-      return isDone(apt.id,ci,activeDay);
-    }).length;
+    const done=scheduled.filter(({ci})=>isDone(apt.id,ci,activeDay)).length;
+    const carryovers=scheduled.filter(({ci})=>isCarryover(apt,ci,activeDay)).length;
     const pct=total?Math.round(done/total*100):0;
     const hasSchedule=total>0;
     let badgeCls='b-none', badgeText='없음';
     if(total>0){
       if(done===total){ badgeCls='b-all'; badgeText=`${done}/${total} ✓`; }
-      else{ badgeCls='b-some'; badgeText=`${done}/${total}`; }
+      else { badgeCls='b-some'; badgeText=`${done}/${total}`; }
     }
+    const carryoverHtml = carryovers>0
+      ? `<div style="font-size:10px;font-weight:700;color:#ea580c;margin-top:2px;">↩ 이월 ${carryovers}대</div>`
+      : '';
     return `
     <div class="apt-btn${hasSchedule?' has-schedule':' no-schedule'}" onclick="${hasSchedule?`goDetail('${apt.id}')`:''}" style="${!hasSchedule?'cursor:default':''}">
       <div class="ab-icon">${apt.icon}</div>
       <div class="ab-name">${apt.name}</div>
       <div class="ab-info">${hasSchedule?`${total}대 예정`:'이날 없음'}</div>
+      ${carryoverHtml}
       ${hasSchedule?`<div class="ab-prog"><div class="ab-prog-fill" style="width:${pct}%"></div></div>`:''}
       <div class="ab-badge ${badgeCls}">${badgeText}</div>
       ${hasSchedule?`<div class="ab-arrow">›</div>`:''}
@@ -640,61 +700,103 @@ function buildAptGrid(){
 /* ════════════════════════════════════
    DETAIL
 ════════════════════════════════════ */
-function renderDetail(){
-  if(!curApt) return;
-  const apt=APTS.find(a=>a.id===curApt);
-  if(!apt) return;
-
-  document.getElementById('detail-title').textContent=apt.name;
-
-  // 해당 요일에 예정된 차량만
+function buildHeroHtml(apt){
   const scheduled=apt.cars.map((car,ci)=>({car,ci})).filter(({car})=>car.sched.includes(activeDay));
   const total=scheduled.length;
   const done=scheduled.filter(({ci})=>isDone(apt.id,ci,activeDay)).length;
   const left=total-done;
+  const carryovers=scheduled.filter(({ci})=>isCarryover(apt,ci,activeDay)).length;
+  const pct=total?Math.round(done/total*100):0;
   const dayName=DAYS.find(d=>d.key===activeDay)?.name;
-
-  // hero
-  document.getElementById('apt-hero').innerHTML=`
+  return `
     <div class="ah-row">
       <span class="ah-icon">${apt.icon}</span>
-      <div>
+      <div style="flex:1;min-width:0;">
         <div class="ah-name">${apt.name}</div>
-        <div class="ah-sub">${dayName}요일 · 예정 ${total}대</div>
+        <div class="ah-sub">${dayName}요일 · 예정 ${total}대${carryovers>0?` · <span style="color:#ea580c">↩ 이월 ${carryovers}대</span>`:''}</div>
       </div>
     </div>
     <div class="ah-stat-row">
       <div class="ahs at"><div class="av">${total}</div><div class="al">예정</div></div>
       <div class="ahs ad"><div class="av">${done}</div><div class="al">완료</div></div>
       <div class="ahs ar"><div class="av">${left}</div><div class="al">남은</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+      <div style="flex:1;height:6px;background:var(--bg);border:1px solid var(--border);border-radius:3px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:3px;transition:width .4s;"></div>
+      </div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--green);flex-shrink:0;">${pct}%</span>
     </div>`;
+}
 
-  // car list
+function renderDetail(){
+  if(!curApt) return;
+  const apt=APTS.find(a=>a.id===curApt);
+  if(!apt) return;
+
+  document.getElementById('detail-title').textContent=apt.name;
+  document.getElementById('apt-hero').innerHTML=buildHeroHtml(apt);
+
+  // 해당 요일 예정 차량 (이월된 차량 포함, 이미 완료된 건 맨 아래)
+  const scheduled=apt.cars.map((car,ci)=>({car,ci})).filter(({car})=>car.sched.includes(activeDay));
+
   const el=document.getElementById('car-list');
-  if(total===0){
+  if(scheduled.length===0){
+    const dayName=DAYS.find(d=>d.key===activeDay)?.name;
     el.innerHTML=`<div class="empty-msg"><div class="ei">🚗</div>${dayName}요일 예정 차량이 없습니다</div>`;
     return;
   }
 
-  el.innerHTML=scheduled.map(({car,ci})=>{
+  // 정렬: 이월(미완료) → 일반(미완료) → 완료
+  const sorted=[...scheduled].sort((a,b)=>{
+    const aDone=isDone(apt.id,a.ci,activeDay);
+    const bDone=isDone(apt.id,b.ci,activeDay);
+    const aCo=isCarryover(apt,a.ci,activeDay);
+    const bCo=isCarryover(apt,b.ci,activeDay);
+    if(aDone&&!bDone) return 1;
+    if(!aDone&&bDone) return -1;
+    if(aCo&&!bCo) return -1;
+    if(!aCo&&bCo) return 1;
+    return 0;
+  });
+
+  el.innerHTML=sorted.map(({car,ci})=>{
     const done_=isDone(apt.id,ci,activeDay);
+    const co_=isCarryover(apt,ci,activeDay);
+    let cardClass='car-card';
+    if(done_) cardClass+=' done-card';
+    else if(co_) cardClass+=' carryover-card';
+
+    // 이월 정보: 어느 날부터 미완료인지 찾기
+    let carryoverFrom='';
+    if(co_){
+      const todayIdx=DAY_ORDER.indexOf(activeDay);
+      for(let i=0;i<todayIdx;i++){
+        const pd=DAY_ORDER[i];
+        if(car.sched.includes(pd)&&!isDone(apt.id,ci,pd)){
+          carryoverFrom=DAYS.find(d=>d.key===pd)?.name+'요일'; break;
+        }
+      }
+    }
+
     return `
-    <div class="car-card${done_?' done-card':''}" id="card-${apt.id}-${ci}">
+    <div class="${cardClass}" id="card-${apt.id}-${ci}">
       <div class="cc-top">
         <div class="cc-num">${car.num}</div>
         <div class="cc-info">
           <div class="cc-name">${car.car}</div>
           <div class="cc-loc">${car.loc}</div>
         </div>
-        <span class="color-chip ${colCls(car.col)}">${car.col}</span>
+        ${co_?`<span class="carryover-tag">↩ ${carryoverFrom}이월</span>`:
+          `<span class="color-chip ${colCls(car.col)}">${car.col}</span>`}
       </div>
       ${car.note?`<div class="cc-note">${car.note}</div>`:''}
       <div class="cc-check-row">
         <div class="cc-check-left">
-          <div class="cc-check-status ${done_?'s-done':'s-wait'}" id="status-${apt.id}-${ci}">
-            ${done_?'✅ 세차 완료':'⏳ 세차 대기'}
+          <div class="cc-check-status ${done_?'s-done':co_?'s-carry':'s-wait'}" id="status-${apt.id}-${ci}">
+            ${done_?'✅ 세차 완료':co_?'↩ 이월된 차량':'⏳ 세차 대기'}
           </div>
-          <div class="cc-check-hint">탭하여 상태 변경</div>
+          <div class="cc-check-hint">${done_?'탭하여 취소':'탭하면 완료 처리'}</div>
         </div>
         <div class="chk-btn${done_?' done':''}" id="chk-${apt.id}-${ci}"
           data-apt="${apt.id}" data-ci="${ci}"
@@ -716,40 +818,42 @@ function toggleCar(btn){
   const next=!now;
   setDone(apt,+ci,activeDay,next);
 
-  // update button
   btn.className=`chk-btn${next?' done':''} pop`;
   setTimeout(()=>btn.classList.remove('pop'),300);
 
-  // update status text
-  const statusEl=document.getElementById(`status-${apt}-${ci}`);
-  if(statusEl){ statusEl.className=`cc-check-status ${next?'s-done':'s-wait'}`; statusEl.textContent=next?'✅ 세차 완료':'⏳ 세차 대기'; }
-
-  // update card bg
-  const cardEl=document.getElementById(`card-${apt}-${ci}`);
-  if(cardEl){ cardEl.classList.toggle('done-card',next); }
-
-  // update hero stats
-  const aptObj=APTS.find(a=>a.id===apt);
-  if(aptObj){
-    const scheduled=aptObj.cars.map((car,i)=>({car,ci:i})).filter(({car})=>car.sched.includes(activeDay));
-    const total=scheduled.length;
-    const done=scheduled.filter(({ci:i})=>isDone(apt,i,activeDay)).length;
-    const left=total-done;
-    const dayName=DAYS.find(d=>d.key===activeDay)?.name;
-    document.getElementById('apt-hero').innerHTML=`
-      <div class="ah-row">
-        <span class="ah-icon">${aptObj.icon}</span>
-        <div>
-          <div class="ah-name">${aptObj.name}</div>
-          <div class="ah-sub">${dayName}요일 · 예정 ${total}대</div>
-        </div>
-      </div>
-      <div class="ah-stat-row">
-        <div class="ahs at"><div class="av">${total}</div><div class="al">예정</div></div>
-        <div class="ahs ad"><div class="av">${done}</div><div class="al">완료</div></div>
-        <div class="ahs ar"><div class="av">${left}</div><div class="al">남은</div></div>
-      </div>`;
+  // 완료 처리 시 이전 요일 미완료도 함께 완료 처리 (이월 해소)
+  if(next){
+    const aptObj=APTS.find(a=>a.id===apt);
+    const car=aptObj?.cars[+ci];
+    if(car){
+      const todayIdx=DAY_ORDER.indexOf(activeDay);
+      for(let i=0;i<todayIdx;i++){
+        const pd=DAY_ORDER[i];
+        if(car.sched.includes(pd)&&!isDone(apt,+ci,pd)){
+          setDone(apt,+ci,pd,true);
+        }
+      }
+    }
   }
+
+  // 카드 상태 텍스트 업데이트
+  const aptObj=APTS.find(a=>a.id===apt);
+  const co_=!next&&aptObj?isCarryover(aptObj,+ci,activeDay):false;
+  const statusEl=document.getElementById(`status-${apt}-${ci}`);
+  if(statusEl){
+    statusEl.className=`cc-check-status ${next?'s-done':co_?'s-carry':'s-wait'}`;
+    statusEl.textContent=next?'✅ 세차 완료':co_?'↩ 이월된 차량':'⏳ 세차 대기';
+  }
+  const cardEl=document.getElementById(`card-${apt}-${ci}`);
+  if(cardEl){
+    cardEl.classList.toggle('done-card',next);
+    cardEl.classList.toggle('carryover-card',!next&&co_);
+  }
+  const hintEl=cardEl?.querySelector('.cc-check-hint');
+  if(hintEl) hintEl.textContent=next?'탭하여 취소':'탭하면 완료 처리';
+
+  // 히어로 재계산
+  if(aptObj) document.getElementById('apt-hero').innerHTML=buildHeroHtml(aptObj);
 
   showToast(next?'✅ 완료 처리':'↩ 대기로 변경');
   calcHomeSummary();
@@ -758,23 +862,21 @@ function toggleCar(btn){
 
 function refreshAptBadge(aptId){
   const apt=APTS.find(a=>a.id===aptId); if(!apt) return;
-  const scheduled=apt.cars.filter(c=>c.sched.includes(activeDay));
+  const scheduled=apt.cars.map((car,ci)=>({car,ci})).filter(({car})=>car.sched.includes(activeDay));
   const total=scheduled.length;
-  const done=scheduled.filter((_,i)=>{
-    const ci=apt.cars.indexOf(scheduled[i]);
-    return isDone(apt.id,ci,activeDay);
-  }).length;
+  const done=scheduled.filter(({ci})=>isDone(apt.id,ci,activeDay)).length;
+  const carryovers=scheduled.filter(({ci})=>isCarryover(apt,ci,activeDay)).length;
   const pct=total?Math.round(done/total*100):0;
   const btn=document.querySelector(`[onclick="goDetail('${aptId}')"]`); if(!btn) return;
   const badge=btn.querySelector('.ab-badge');
   const bar=btn.querySelector('.ab-prog-fill');
+  const coEl=btn.querySelector('[style*="ea580c"]');
   if(badge){
-    let cls='b-some', txt=`${done}/${total}`;
-    if(done===total&&total>0){cls='b-all';txt=`${done}/${total} ✓`;}
-    badge.className=`ab-badge ${cls}`;
-    badge.textContent=txt;
+    let cls=done===total&&total>0?'b-all':'b-some', txt=`${done}/${total}${done===total&&total>0?' ✓':''}`;
+    badge.className=`ab-badge ${cls}`; badge.textContent=txt;
   }
   if(bar) bar.style.width=pct+'%';
+  if(coEl) coEl.textContent=carryovers>0?`↩ 이월 ${carryovers}대`:'';
 }
 
 /* ════════════════════════════════════
