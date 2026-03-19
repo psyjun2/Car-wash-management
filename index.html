@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff">
+<title>세차LOG</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{font-size:16px;}
+body{
+  font-family:'Noto Sans KR',sans-serif;
+  background:#f0f2f7;
+  color:#1a1d2e;
+  min-height:100dvh;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+:root{
+  --bg:#f0f2f7;
+  --white:#ffffff;
+  --border:#e2e6f0;
+  --border2:#cdd3e4;
+  --blue:#2563eb;
+  --blue-l:rgba(37,99,235,0.09);
+  --green:#16a34a;
+  --green-l:rgba(22,163,74,0.10);
+  --muted:#64748b;
+  --dim:#b0bac8;
+  --text:#1a1d2e;
+  --r:14px;
+  --rs:10px;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
+}
+
+/* ── PAGE SYSTEM ── */
+.page{display:none;min-height:100dvh;flex-direction:column;}
+.page.on{display:flex;}
+.safe-t{height:var(--safe-t);background:var(--white);flex-shrink:0;}
+
+/* ── TOP BAR ── */
+.topbar{
+  background:var(--white);border-bottom:1px solid var(--border);
+  height:54px;padding:0 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;flex-shrink:0;
+  box-shadow:0 1px 6px rgba(0,0,0,0.05);
+}
+.tb-logo{font-size:18px;font-weight:900;letter-spacing:-0.5px;}
+.tb-logo em{color:var(--blue);font-style:normal;}
+.tb-date{
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+  color:var(--muted);background:var(--bg);border:1px solid var(--border);
+  padding:3px 10px;border-radius:20px;
+}
+.tb-back{
+  display:flex;align-items:center;gap:5px;
+  font-size:14px;font-weight:700;color:var(--blue);cursor:pointer;padding:6px 0;
+}
+.tb-center{font-size:15px;font-weight:800;color:var(--text);}
+.tb-spacer{width:52px;}
+
+/* ── SCROLL BODY ── */
+.scroll{flex:1;overflow-y:auto;scrollbar-width:none;}
+.scroll::-webkit-scrollbar{display:none;}
+
+/* ════════════════════════
+   HOME PAGE
+════════════════════════ */
+.home-body{padding:16px 14px calc(var(--safe-b)+76px);}
+
+/* 요일 탭 */
+.day-tabs{
+  display:flex;gap:6px;margin-bottom:18px;
+  overflow-x:auto;scrollbar-width:none;padding-bottom:2px;
+}
+.day-tabs::-webkit-scrollbar{display:none;}
+.dt{
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:10px 4px;border-radius:var(--rs);
+  border:1.5px solid var(--border);background:var(--white);
+  cursor:pointer;transition:all .16s;
+}
+.dt .dn{font-size:13px;font-weight:700;color:var(--muted);}
+.dt .dd{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);}
+.dt.on{border-color:var(--blue);background:var(--blue);}
+.dt.on .dn{color:#fff;}
+.dt.on .dd{color:rgba(255,255,255,0.7);}
+
+/* 요약 바 */
+.summary-bar{
+  background:var(--white);border:1px solid var(--border);border-radius:var(--r);
+  padding:14px 16px;margin-bottom:18px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.05);
+}
+.sb-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.sb-title{font-size:13px;font-weight:700;color:var(--text);}
+.sb-nums{display:flex;gap:12px;align-items:center;}
+.sb-num{display:flex;flex-direction:column;align-items:center;gap:1px;}
+.sb-num .nv{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;line-height:1;}
+.sb-num .nl{font-size:10px;font-weight:600;color:var(--muted);}
+.sb-num.n-total .nv{color:var(--blue);}
+.sb-num.n-done  .nv{color:var(--green);}
+.sb-num.n-left  .nv{color:#d97706;}
+.prog-wrap{position:relative;}
+.prog-bg{height:8px;background:var(--bg);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.prog-fg{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:4px;transition:width .4s cubic-bezier(.4,0,.2,1);}
+.prog-pct{
+  position:absolute;right:0;top:-18px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--green);
+}
+
+/* 섹션 타이틀 */
+.sec-title{
+  font-size:11px;font-weight:800;color:var(--muted);
+  letter-spacing:.5px;text-transform:uppercase;
+  margin-bottom:10px;padding-left:2px;
+}
+
+/* 아파트 버튼 그리드 */
+.apt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.apt-btn{
+  background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);
+  padding:14px 12px 12px;cursor:pointer;
+  display:flex;flex-direction:column;gap:6px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.05);
+  transition:all .15s;position:relative;overflow:hidden;
+  text-align:left;-webkit-user-select:none;user-select:none;
+}
+.apt-btn:active{transform:scale(.96);box-shadow:none;}
+.apt-btn.has-schedule{border-color:rgba(37,99,235,.25);}
+.ab-icon{font-size:20px;line-height:1;}
+.ab-name{font-size:12px;font-weight:800;color:var(--text);line-height:1.3;}
+.ab-info{font-size:10px;color:var(--muted);font-weight:600;}
+/* 미니 진행바 */
+.ab-prog{height:3px;background:var(--bg);border:1px solid var(--border);border-radius:2px;overflow:hidden;margin-top:2px;}
+.ab-prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s;}
+/* 배지 */
+.ab-badge{
+  position:absolute;top:10px;right:10px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+  padding:2px 6px;border-radius:6px;
+}
+.ab-badge.b-some{background:rgba(22,163,74,.10);color:var(--green);border:1px solid rgba(22,163,74,.2);}
+.ab-badge.b-none{background:var(--bg);color:var(--dim);border:1px solid var(--border);}
+.ab-badge.b-all{background:rgba(37,99,235,.10);color:var(--blue);border:1px solid rgba(37,99,235,.2);}
+/* 해당 요일 예정 없으면 흐리게 */
+.apt-btn.no-schedule{opacity:.45;}
+.ab-arrow{position:absolute;bottom:10px;right:12px;color:var(--dim);font-size:14px;}
+
+/* ════════════════════════
+   DETAIL PAGE
+════════════════════════ */
+
+/* 아파트 히어로 */
+.apt-hero{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:14px 16px 12px;flex-shrink:0;
+}
+.ah-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.ah-icon{font-size:24px;}
+.ah-name{font-size:16px;font-weight:900;color:var(--text);}
+.ah-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.ah-stat-row{
+  display:flex;background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--rs);overflow:hidden;
+}
+.ahs{flex:1;padding:9px 0;text-align:center;border-right:1px solid var(--border);}
+.ahs:last-child{border-right:none;}
+.ahs .av{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:700;line-height:1;}
+.ahs .al{font-size:10px;color:var(--muted);margin-top:3px;font-weight:600;}
+.ahs.at .av{color:var(--blue);}
+.ahs.ad .av{color:var(--green);}
+.ahs.ar .av{color:#d97706;}
+
+/* 차량 카드 리스트 */
+.car-list{padding:12px 12px calc(var(--safe-b)+76px);}
+
+.empty-msg{
+  text-align:center;padding:48px 24px;
+  color:var(--muted);font-size:14px;font-weight:600;
+}
+.empty-msg .ei{font-size:36px;margin-bottom:10px;}
+
+.car-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--r);margin-bottom:10px;overflow:hidden;
+  box-shadow:0 1px 4px rgba(0,0,0,0.05);
+  transition:all .15s;
+}
+.car-card.done-card{
+  border-color:rgba(22,163,74,.3);
+  background:rgba(22,163,74,.02);
+}
+.car-card:last-child{margin-bottom:0;}
+
+/* 카드 상단 */
+.cc-top{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px 10px;border-bottom:1px solid var(--border);
+}
+.cc-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:16px;font-weight:700;color:var(--blue);
+  letter-spacing:1px;flex-shrink:0;min-width:50px;
+}
+.cc-info{flex:1;min-width:0;}
+.cc-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cc-loc{font-size:11px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.color-chip{
+  font-size:10px;font-weight:700;padding:2px 8px;
+  border-radius:5px;flex-shrink:0;white-space:nowrap;
+}
+.cc-검정{background:#1e1e1e;color:#bbb;border:1px solid #444;}
+.cc-흰색{background:#f0f0f0;color:#444;border:1px solid #ccc;}
+.cc-은색{background:#c8d0dc;color:#333;border:1px solid #aab;}
+.cc-남색{background:#1e3a70;color:#9ec8f0;border:1px solid #2a4a8e;}
+.cc-청색{background:#1860a8;color:#90d0f8;border:1px solid #2a6cc0;}
+.cc-남희색{background:#243a5e;color:#90b8d8;border:1px solid #344;}
+.cc-금색{background:#7a5a10;color:#f8e070;border:1px solid #9a7a20;}
+.cc-빨강{background:#8a1818;color:#f8a0a0;border:1px solid #aa2828;}
+.cc-회색{background:#888;color:#fff;border:1px solid #999;}
+.cc-무광{background:#3a3a3a;color:#ccc;border:1px solid #555;}
+.cc-default{background:var(--border);color:var(--muted);border:1px solid var(--border2);}
+
+/* 노트 */
+.cc-note{
+  font-size:11px;color:var(--muted);padding:7px 14px;
+  border-bottom:1px solid var(--border);line-height:1.5;
+  background:#fafbff;
+}
+
+/* 체크 영역 — 심플하게 */
+.cc-check-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 14px;
+}
+.cc-check-left{display:flex;flex-direction:column;gap:2px;}
+.cc-check-status{font-size:12px;font-weight:700;}
+.cc-check-status.s-wait{color:var(--muted);}
+.cc-check-status.s-done{color:var(--green);}
+.cc-check-hint{font-size:10px;color:var(--dim);}
+
+/* 큰 체크 버튼 */
+.chk-btn{
+  width:48px;height:48px;border-radius:50%;
+  border:2.5px solid var(--border2);background:#f8f9fc;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .15s cubic-bezier(.34,1.56,.64,1);
+  flex-shrink:0;
+  -webkit-user-select:none;user-select:none;
+}
+.chk-btn:active{transform:scale(.85);}
+.chk-btn svg{display:none;}
+.chk-btn.done{
+  border-color:var(--green);
+  background:var(--green);
+}
+.chk-btn.done svg{display:block;}
+.chk-btn.pop{animation:pop .28s ease;}
+@keyframes pop{0%{transform:scale(.6)}65%{transform:scale(1.25)}100%{transform:scale(1)}}
+
+/* ── BOTTOM NAV ── */
+.bnav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--white);border-top:1px solid var(--border);
+  padding:8px 0 calc(var(--safe-b)+4px);
+  display:flex;z-index:200;
+  box-shadow:0 -2px 12px rgba(0,0,0,.06);
+}
+.bnav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:5px 0;cursor:pointer;
+}
+.bnav-btn:active{opacity:.55;}
+.bnav-icon{font-size:20px;line-height:1;}
+.bnav-lbl{font-size:10px;font-weight:700;color:var(--muted);}
+.bnav-btn.on .bnav-lbl{color:var(--blue);}
+
+/* ── LEGEND SHEET ── */
+.sheet{position:fixed;inset:0;z-index:300;display:none;}
+.sheet.on{display:flex;flex-direction:column;justify-content:flex-end;}
+.sheet-bg{position:absolute;inset:0;background:rgba(0,0,0,.28);backdrop-filter:blur(3px);}
+.sheet-panel{
+  position:relative;background:var(--white);
+  border-radius:20px 20px 0 0;padding:20px 20px calc(var(--safe-b)+20px);
+  border-top:1px solid var(--border);
+  box-shadow:0 -4px 20px rgba(0,0,0,.08);
+  animation:sup .24s cubic-bezier(.4,0,.2,1);
+}
+@keyframes sup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px;}
+.sheet-title{font-size:15px;font-weight:800;margin-bottom:14px;}
+.legend-rows{display:flex;flex-direction:column;gap:8px;}
+.leg-row{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--rs);padding:12px 14px;
+}
+.leg-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.leg-icon.ic-done{background:var(--green);border:2px solid var(--green);}
+.leg-icon.ic-wait{background:#f8f9fc;border:2.5px solid var(--border2);}
+.leg-text .lt-lbl{font-size:13px;font-weight:700;}
+.leg-text .lt-desc{font-size:11px;color:var(--muted);margin-top:2px;}
+.sheet-tip{
+  margin-top:12px;font-size:12px;color:var(--muted);
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--rs);padding:10px 14px;line-height:1.7;
+}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:calc(var(--safe-b)+72px);left:50%;
+  transform:translateX(-50%) translateY(14px);
+  background:#1e293b;border:1px solid #334155;
+  padding:9px 20px;border-radius:24px;font-size:13px;font-weight:600;
+  color:#fff;box-shadow:0 6px 24px rgba(0,0,0,.18);
+  opacity:0;pointer-events:none;z-index:999;white-space:nowrap;
+  transition:opacity .2s,transform .2s;
+}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════
+     PAGE 1 · HOME
+══════════════════════════════ -->
+<div class="page on" id="pg-home">
+  <div class="safe-t"></div>
+  <div class="topbar">
+    <div class="tb-logo">세차<em>LOG</em></div>
+    <div class="tb-date" id="home-date">—</div>
+  </div>
+  <div class="scroll">
+    <div class="home-body">
+
+      <!-- 요일 탭 -->
+      <div class="day-tabs" id="day-tabs"></div>
+
+      <!-- 오늘 요약 -->
+      <div class="summary-bar">
+        <div class="sb-row">
+          <span class="sb-title" id="sb-daytitle">오늘 세차 현황</span>
+          <div class="sb-nums">
+            <div class="sb-num n-total"><div class="nv" id="sb-total">0</div><div class="nl">예정</div></div>
+            <div class="sb-num n-done"> <div class="nv" id="sb-done">0</div> <div class="nl">완료</div></div>
+            <div class="sb-num n-left"> <div class="nv" id="sb-left">0</div> <div class="nl">남은</div></div>
+          </div>
+        </div>
+        <div class="prog-wrap">
+          <div class="prog-pct" id="sb-pct">0%</div>
+          <div class="prog-bg"><div class="prog-fg" id="sb-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- 아파트 -->
+      <div class="sec-title">아파트 선택</div>
+      <div class="apt-grid" id="apt-grid"></div>
+
+    </div>
+  </div>
+  <div class="bnav">
+    <div class="bnav-btn on"><div class="bnav-icon">🏠</div><div class="bnav-lbl">홈</div></div>
+    <div class="bnav-btn" onclick="openSheet()"><div class="bnav-icon">❓</div><div class="bnav-lbl">범례</div></div>
+    <div class="bnav-btn" onclick="doReset()"><div class="bnav-icon">🔄</div><div class="bnav-lbl">초기화</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     PAGE 2 · DETAIL
+══════════════════════════════ -->
+<div class="page" id="pg-detail">
+  <div class="safe-t"></div>
+  <div class="topbar">
+    <div class="tb-back" onclick="goHome()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>홈
+    </div>
+    <div class="tb-center" id="detail-title">—</div>
+    <div class="tb-spacer"></div>
+  </div>
+  <div class="apt-hero" id="apt-hero"></div>
+  <div class="scroll">
+    <div class="car-list" id="car-list"></div>
+  </div>
+  <div class="bnav">
+    <div class="bnav-btn" onclick="goHome()"><div class="bnav-icon">🏠</div><div class="bnav-lbl">홈</div></div>
+    <div class="bnav-btn" onclick="openSheet()"><div class="bnav-icon">❓</div><div class="bnav-lbl">범례</div></div>
+    <div class="bnav-btn" onclick="doReset()"><div class="bnav-icon">🔄</div><div class="bnav-lbl">초기화</div></div>
+  </div>
+</div>
+
+<!-- LEGEND SHEET -->
+<div class="sheet" id="legend-sheet">
+  <div class="sheet-bg" onclick="closeSheet()"></div>
+  <div class="sheet-panel">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">세차 상태 안내</div>
+    <div class="legend-rows">
+      <div class="leg-row">
+        <div class="leg-icon ic-done">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="leg-text"><div class="lt-lbl">완료</div><div class="lt-desc">세차를 완료한 차량 — 초록 체크</div></div>
+      </div>
+      <div class="leg-row">
+        <div class="leg-icon ic-wait"></div>
+        <div class="leg-text"><div class="lt-lbl">대기</div><div class="lt-desc">아직 세차하지 않은 차량</div></div>
+      </div>
+    </div>
+    <div class="sheet-tip">💡 동그라미(O)가 표시된 요일에 세차 예정 차량이 표시됩니다<br>✅ 버튼을 탭하면 완료 / 다시 탭하면 대기로 되돌아갑니다<br>💾 상태는 브라우저에 자동 저장됩니다</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ════════════════════════════════════
+   DATA
+   schedule: 요일별 세차 예정 여부 (O 표시)
+   sun=일(26), mon=월(19), tue=화(19), wed=수(23), thu=목(18)
+════════════════════════════════════ */
+const DAYS=[
+  {key:'sun',name:'일',date:'26'},
+  {key:'mon',name:'월',date:'19'},
+  {key:'tue',name:'화',date:'19'},
+  {key:'wed',name:'수',date:'23'},
+  {key:'thu',name:'목',date:'18'},
+];
+
+// schedule: 세차 예정 요일 배열 (이미지의 O 표시)
+const APTS=[
+  /* ─── 중앙하이츠 1~2 ─── */
+  {id:'ha12', name:'중앙하이츠 1~2', icon:'🏢',
+   memo:'청마루 7813 BMW GT 검정 → 28번기둥(106동밖) | Ray 0745/7974 → 주1회 보일때 세차',
+   cars:[
+    {num:'8785', car:'벤츠E',      col:'흰색',  loc:'B1',          sched:['mon','wed'],        note:'B1 고정'},
+    {num:'6453', car:'렉서스LS',   col:'검정',  loc:'B1',          sched:['sun'],               note:''},
+    {num:'8696', car:'그랜저',     col:'—',     loc:'B1',          sched:['mon'],               note:'8시'},
+    {num:'2451', car:'벤츠GLC',    col:'남색',  loc:'B2/B1',       sched:['mon'],               note:'7시 (가끔 픽업)'},
+    {num:'1710', car:'GV70',       col:'흰색',  loc:'B2/B3/B1',    sched:['tue'],               note:''},
+    {num:'1319', car:'벤츠E',      col:'청색',  loc:'W B3',        sched:['sun','wed'],         note:'필요시 문자, 8시 다시 나감'},
+    {num:'2763', car:'벤츠S',      col:'검정',  loc:'B4',          sched:['sun','tue'],         note:'부재시 익일'},
+    {num:'5225', car:'BMW X6',     col:'흰색',  loc:'B4',          sched:['sun','tue'],         note:'월2회, 풀주 내외부같이'},
+    {num:'4590', car:'아우디A6',   col:'흰색',  loc:'B5',          sched:['mon','wed'],         note:'거의고정, 내부요청시 유료'},
+    {num:'0894', car:'렉스턴 칸',  col:'빨강',  loc:'B5',          sched:[],                    note:'시간될때'},
+  ]},
+
+  /* ─── 중앙하이츠 3~4 ─── */
+  {id:'ha34', name:'중앙하이츠 3~4', icon:'🏢',
+   memo:'W (월) 1638 690원',
+   cars:[
+    {num:'9025', car:'그랜저(신형)', col:'검정', loc:'B1',           sched:['sun','tue','thu'],   note:'넷째주 문자하고 내부'},
+    {num:'5610', car:'익스플로러',   col:'검정', loc:'B1',           sched:['sun','tue','thu'],   note:'넷째주 문자하고 내부'},
+    {num:'2310', car:'렉서스',       col:'금색', loc:'B1',           sched:['sun','wed'],         note:'거의고정'},
+    {num:'2647', car:'G80(신형)',    col:'남색', loc:'B1',           sched:['sun','tue'],         note:'가끔 출장'},
+    {num:'3290', car:'그랜저(구형)', col:'검정', loc:'W B1',         sched:['sun','tue'],         note:'12시 or 외박'},
+    {num:'9177', car:'벤츠GLS',      col:'검정', loc:'B1',           sched:['wed'],               note:'거의고정'},
+    {num:'7406', car:'렉스턴',       col:'검정', loc:'W B1',         sched:['tue'],               note:'월2(2,4째주)'},
+    {num:'7609', car:'벤츠E',        col:'남희색',loc:'B1/B4',        sched:['tue'],               note:'거의고정, 스류어디스'},
+    {num:'9881', car:'G90',          col:'검정', loc:'B1/B4 와이퍼x',sched:['sun','mon','wed'],   note:'12시 or 외박'},
+    {num:'0672', car:'벤츠E',        col:'검정', loc:'B1',           sched:['wed'],               note:'내부는 해달라고 할때만'},
+    {num:'4631', car:'벤츠C',        col:'검정', loc:'B2/와이피x',   sched:['mon'],               note:'월2회 내부/10시'},
+    {num:'5811', car:'벤츠S',        col:'검정', loc:'B3/B4',        sched:['sun','tue'],         note:'월2회 내부/10시'},
+    {num:'5242', car:'레인지로버',   col:'검정', loc:'B4',           sched:['sun'],               note:'플랫폼 내부 문열림 확인'},
+    {num:'1642', car:'G80',          col:'—',    loc:'B4/B3',        sched:['mon'],               note:'플랫폼 내부 문열림 확인'},
+    {num:'0241', car:'BMW 1',        col:'청색', loc:'W B4/B3',      sched:['sun'],               note:'내부후 키→9025,5610 헬끼내부'},
+    {num:'5414', car:'벤츠EQE',      col:'검정', loc:'B4/B5',        sched:['sun','tue','thu'],   note:'넷째주 문자하고 내부'},
+    {num:'4709', car:'포르쉐',       col:'흰색', loc:'W.P B5',       sched:['sun'],               note:'월2(2,4째주), 이전 K7 1293'},
+    {num:'5625', car:'벤츠',         col:'—',    loc:'B5',           sched:['sun','tue','thu'],   note:'첫째주 내부'},
+    {num:'7700', car:'—',            col:'검정', loc:'B5',           sched:['sun','tue','thu'],   note:''},
+    {num:'8721', car:'G90',          col:'무광', loc:'B5',           sched:['sun','wed'],         note:''},
+    {num:'0946', car:'벤츠E',        col:'—',    loc:'W B5',         sched:['mon'],               note:''},
+    {num:'9946', car:'CLE',          col:'흰색', loc:'W B5',         sched:['sun'],               note:''},
+  ]},
+
+  /* ─── 블루밍 ─── */
+  {id:'blooming', name:'블루밍', icon:'🌸', memo:'',
+   cars:[
+    {num:'9304', car:'렉스턴(신형)', col:'흰색', loc:'W B2/B1 101동', sched:['sun','tue','thu'], note:'12시'},
+    {num:'1607', car:'렉스턴(구형)', col:'은색', loc:'W B2',          sched:['mon'],             note:'거의고정'},
+    {num:'7488', car:'벨토스',       col:'흰색', loc:'W B2',          sched:['mon','wed'],       note:'여행'},
+    {num:'1005', car:'카니발',       col:'흰색', loc:'W B2',          sched:['sun','wed'],       note:'여행'},
+    {num:'4836', car:'테슬라',       col:'회색', loc:'B2 보통가운데', sched:['mon'],             note:'부재시 출장'},
+    {num:'8254', car:'BMW X6',       col:'청색', loc:'P B2/B1 101동', sched:['mon'],             note:'부재시 출장'},
+    {num:'8615', car:'벤츠S',        col:'흰색', loc:'P B2 95기둥',   sched:['mon'],             note:'거의고정, 늦으면 10시30'},
+    {num:'9140', car:'카니발',       col:'검정', loc:'W B1 105동',    sched:['tue'],             note:'이전번호 6704'},
+    {num:'1732', car:'신형그랜저',   col:'흰색', loc:'P B1/와이피o',  sched:['mon'],             note:'거의고정, 늦으면 10시30'},
+    {num:'7034', car:'쏘렌토',       col:'은색', loc:'B1/와이피o',    sched:['wed'],             note:''},
+  ]},
+
+  /* ─── 고척푸르지오 ─── */
+  {id:'gocheok', name:'고척푸르지오', icon:'🏗️', memo:'1011 GLC → O O',
+   cars:[
+    {num:'6997', car:'벤츠E(구형)', col:'검정', loc:'위2층 위쪽바깔',  sched:['sun','tue'],   note:'고정, 와이피o'},
+    {num:'6171', car:'QM6',         col:'은색', loc:'뒷윗층',          sched:['mon','wed'],   note:'출장'},
+    {num:'0175', car:'K9',          col:'검정', loc:'뒷윗층 바깔',     sched:['sun','tue'],   note:'1달1회, 안오면 6997세차'},
+    {num:'2920', car:'—',           col:'은색', loc:'위2층/6997근처',  sched:['mon','wed'],   note:'거의고정 12~12시30'},
+    {num:'2581', car:'렉서스',      col:'금색', loc:'위2층',           sched:['sun','tue'],   note:'고정'},
+    {num:'5910', car:'벤츠S',       col:'검정', loc:'위2층',           sched:['mon','wed'],   note:'거의고정'},
+    {num:'8319', car:'G90',         col:'검정', loc:'W 위2층 아래바깔',sched:['sun','tue'],   note:'2477없으면 안들어옴'},
+    {num:'2477', car:'벤츠E',       col:'검정', loc:'위2층 아래바깔',  sched:['mon','wed'],   note:'고정, 늦으면 12시'},
+  ]},
+
+  /* ─── 고척아이파크MD ─── */
+  {id:'ipark', name:'고척아이파크MD', icon:'🏙️', memo:'',
+   cars:[
+    {num:'8741', car:'벤츠E', col:'청색', loc:'4동 102동1~2', sched:['mon'], note:'23기둥근처, 고정'},
+    {num:'6600', car:'G90',   col:'—',    loc:'—',            sched:['mon'], note:'103동 1-28층이상'},
+  ]},
+
+  /* ─── 목동파크자이 ─── */
+  {id:'mokdong', name:'목동파크자이', icon:'🌲', memo:'',
+   cars:[
+    {num:'12기당', car:'벤츠S', col:'검정', loc:'B1 107동 3~4', sched:['sun','tue','thu'], note:'타이어광택x'},
+    {num:'4689',   car:'G70',   col:'검정', loc:'B1 103동 3~4', sched:['sun','tue','thu'], note:'타이어광택x'},
+  ]},
+
+  /* ─── 신구로자이 ─── */
+  {id:'guro', name:'신구로자이', icon:'🏠', memo:'목동동로 339 인근',
+   cars:[
+    {num:'7506', car:'포르쉐', col:'회색', loc:'신구로자이', sched:['tue'], note:'구로구 중앙로 134 위'},
+  ]},
+
+  /* ─── 신정롯데캐슬 ─── */
+  {id:'lotte', name:'신정롯데캐슬', icon:'🏰', memo:'신록로 24 X5 → 같은날?',
+   cars:[
+    {num:'1709', car:'레이',     col:'흰색', loc:'신정롯데캐슬', sched:['mon'], note:'신록로 12길 22'},
+    {num:'—',    car:'벤츠OLS',  col:'검정', loc:'—',            sched:['mon'], note:''},
+    {num:'5246', car:'아우디A3', col:'검정', loc:'—',            sched:['mon'], note:''},
+  ]},
+];
+
+/* ════════════════════════════════════
+   STATE
+════════════════════════════════════ */
+let activeDay = 'sun';
+let curApt    = null;
+
+// localStorage key: "w5_{aptId}_{carIdx}_{dayKey}" → "1" = done, "" = not done
+const sk  = (a,ci,d) => `w5_${a}_${ci}_${d}`;
+const isDone = (a,ci,d) => localStorage.getItem(sk(a,ci,d)) === '1';
+const setDone = (a,ci,d,v) => v ? localStorage.setItem(sk(a,ci,d),'1') : localStorage.removeItem(sk(a,ci,d));
+
+/* ════════════════════════════════════
+   UTILS
+════════════════════════════════════ */
+function colCls(c){ return ['검정','흰색','은색','남색','청색','남희색','금색','빨강','회색','무광'].includes(c)?`cc-${c}`:'cc-default'; }
+
+function updateDate(){
+  const n=new Date(), names=['일','월','화','수','목','금','토'];
+  document.getElementById('home-date').textContent=`${n.getMonth()+1}/${n.getDate()}(${names[n.getDay()]})`;
+}
+
+/* ════════════════════════════════════
+   PAGE NAV
+════════════════════════════════════ */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+function goHome(){ curApt=null; showPage('pg-home'); renderHome(); }
+function goDetail(aptId){ curApt=aptId; showPage('pg-detail'); renderDetail(); }
+
+/* ════════════════════════════════════
+   HOME
+════════════════════════════════════ */
+function renderHome(){
+  buildDayTabs();
+  buildAptGrid();
+  calcHomeSummary();
+}
+
+function buildDayTabs(){
+  const el=document.getElementById('day-tabs');
+  el.innerHTML=DAYS.map(d=>`
+    <div class="dt${d.key===activeDay?' on':''}" data-day="${d.key}">
+      <span class="dn">${d.name}요일</span>
+      <span class="dd">${d.date}일</span>
+    </div>`).join('');
+  el.querySelectorAll('.dt').forEach(b=>b.addEventListener('click',()=>{
+    activeDay=b.dataset.day;
+    renderHome();
+    if(curApt) renderDetail();
+  }));
+}
+
+function calcHomeSummary(){
+  let total=0, done=0;
+  APTS.forEach(apt=>apt.cars.forEach((car,ci)=>{
+    if(!car.sched.includes(activeDay)) return;
+    total++;
+    if(isDone(apt.id,ci,activeDay)) done++;
+  }));
+  const left=total-done;
+  const pct=total?Math.round(done/total*100):0;
+  const dayName=DAYS.find(d=>d.key===activeDay)?.name;
+  document.getElementById('sb-daytitle').textContent=`${dayName}요일 세차 현황`;
+  document.getElementById('sb-total').textContent=total;
+  document.getElementById('sb-done').textContent=done;
+  document.getElementById('sb-left').textContent=left;
+  document.getElementById('sb-pct').textContent=pct+'%';
+  document.getElementById('sb-bar').style.width=pct+'%';
+}
+
+function buildAptGrid(){
+  const el=document.getElementById('apt-grid');
+  el.innerHTML=APTS.map(apt=>{
+    // 해당 요일에 예정된 차량만
+    const scheduled=apt.cars.filter(c=>c.sched.includes(activeDay));
+    const total=scheduled.length;
+    const done=scheduled.filter((_,i)=>{
+      const ci=apt.cars.indexOf(scheduled[i]);
+      return isDone(apt.id,ci,activeDay);
+    }).length;
+    const pct=total?Math.round(done/total*100):0;
+    const hasSchedule=total>0;
+    let badgeCls='b-none', badgeText='없음';
+    if(total>0){
+      if(done===total){ badgeCls='b-all'; badgeText=`${done}/${total} ✓`; }
+      else{ badgeCls='b-some'; badgeText=`${done}/${total}`; }
+    }
+    return `
+    <div class="apt-btn${hasSchedule?' has-schedule':' no-schedule'}" onclick="${hasSchedule?`goDetail('${apt.id}')`:''}" style="${!hasSchedule?'cursor:default':''}">
+      <div class="ab-icon">${apt.icon}</div>
+      <div class="ab-name">${apt.name}</div>
+      <div class="ab-info">${hasSchedule?`${total}대 예정`:'이날 없음'}</div>
+      ${hasSchedule?`<div class="ab-prog"><div class="ab-prog-fill" style="width:${pct}%"></div></div>`:''}
+      <div class="ab-badge ${badgeCls}">${badgeText}</div>
+      ${hasSchedule?`<div class="ab-arrow">›</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════
+   DETAIL
+════════════════════════════════════ */
+function renderDetail(){
+  if(!curApt) return;
+  const apt=APTS.find(a=>a.id===curApt);
+  if(!apt) return;
+
+  document.getElementById('detail-title').textContent=apt.name;
+
+  // 해당 요일에 예정된 차량만
+  const scheduled=apt.cars.map((car,ci)=>({car,ci})).filter(({car})=>car.sched.includes(activeDay));
+  const total=scheduled.length;
+  const done=scheduled.filter(({ci})=>isDone(apt.id,ci,activeDay)).length;
+  const left=total-done;
+  const dayName=DAYS.find(d=>d.key===activeDay)?.name;
+
+  // hero
+  document.getElementById('apt-hero').innerHTML=`
+    <div class="ah-row">
+      <span class="ah-icon">${apt.icon}</span>
+      <div>
+        <div class="ah-name">${apt.name}</div>
+        <div class="ah-sub">${dayName}요일 · 예정 ${total}대</div>
+      </div>
+    </div>
+    <div class="ah-stat-row">
+      <div class="ahs at"><div class="av">${total}</div><div class="al">예정</div></div>
+      <div class="ahs ad"><div class="av">${done}</div><div class="al">완료</div></div>
+      <div class="ahs ar"><div class="av">${left}</div><div class="al">남은</div></div>
+    </div>`;
+
+  // car list
+  const el=document.getElementById('car-list');
+  if(total===0){
+    el.innerHTML=`<div class="empty-msg"><div class="ei">🚗</div>${dayName}요일 예정 차량이 없습니다</div>`;
+    return;
+  }
+
+  el.innerHTML=scheduled.map(({car,ci})=>{
+    const done_=isDone(apt.id,ci,activeDay);
+    return `
+    <div class="car-card${done_?' done-card':''}" id="card-${apt.id}-${ci}">
+      <div class="cc-top">
+        <div class="cc-num">${car.num}</div>
+        <div class="cc-info">
+          <div class="cc-name">${car.car}</div>
+          <div class="cc-loc">${car.loc}</div>
+        </div>
+        <span class="color-chip ${colCls(car.col)}">${car.col}</span>
+      </div>
+      ${car.note?`<div class="cc-note">${car.note}</div>`:''}
+      <div class="cc-check-row">
+        <div class="cc-check-left">
+          <div class="cc-check-status ${done_?'s-done':'s-wait'}" id="status-${apt.id}-${ci}">
+            ${done_?'✅ 세차 완료':'⏳ 세차 대기'}
+          </div>
+          <div class="cc-check-hint">탭하여 상태 변경</div>
+        </div>
+        <div class="chk-btn${done_?' done':''}" id="chk-${apt.id}-${ci}"
+          data-apt="${apt.id}" data-ci="${ci}"
+          onclick="toggleCar(this)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  if(apt.memo){
+    el.innerHTML+=`<div style="margin-top:8px;border-radius:10px;padding:9px 12px;background:rgba(37,99,235,.04);border:1px solid rgba(37,99,235,.15);font-size:11px;color:var(--muted);line-height:1.6;">📌 ${apt.memo}</div>`;
+  }
+}
+
+function toggleCar(btn){
+  const {apt,ci}=btn.dataset;
+  const now=isDone(apt,+ci,activeDay);
+  const next=!now;
+  setDone(apt,+ci,activeDay,next);
+
+  // update button
+  btn.className=`chk-btn${next?' done':''} pop`;
+  setTimeout(()=>btn.classList.remove('pop'),300);
+
+  // update status text
+  const statusEl=document.getElementById(`status-${apt}-${ci}`);
+  if(statusEl){ statusEl.className=`cc-check-status ${next?'s-done':'s-wait'}`; statusEl.textContent=next?'✅ 세차 완료':'⏳ 세차 대기'; }
+
+  // update card bg
+  const cardEl=document.getElementById(`card-${apt}-${ci}`);
+  if(cardEl){ cardEl.classList.toggle('done-card',next); }
+
+  // update hero stats
+  const aptObj=APTS.find(a=>a.id===apt);
+  if(aptObj){
+    const scheduled=aptObj.cars.map((car,i)=>({car,ci:i})).filter(({car})=>car.sched.includes(activeDay));
+    const total=scheduled.length;
+    const done=scheduled.filter(({ci:i})=>isDone(apt,i,activeDay)).length;
+    const left=total-done;
+    const dayName=DAYS.find(d=>d.key===activeDay)?.name;
+    document.getElementById('apt-hero').innerHTML=`
+      <div class="ah-row">
+        <span class="ah-icon">${aptObj.icon}</span>
+        <div>
+          <div class="ah-name">${aptObj.name}</div>
+          <div class="ah-sub">${dayName}요일 · 예정 ${total}대</div>
+        </div>
+      </div>
+      <div class="ah-stat-row">
+        <div class="ahs at"><div class="av">${total}</div><div class="al">예정</div></div>
+        <div class="ahs ad"><div class="av">${done}</div><div class="al">완료</div></div>
+        <div class="ahs ar"><div class="av">${left}</div><div class="al">남은</div></div>
+      </div>`;
+  }
+
+  showToast(next?'✅ 완료 처리':'↩ 대기로 변경');
+  calcHomeSummary();
+  refreshAptBadge(apt);
+}
+
+function refreshAptBadge(aptId){
+  const apt=APTS.find(a=>a.id===aptId); if(!apt) return;
+  const scheduled=apt.cars.filter(c=>c.sched.includes(activeDay));
+  const total=scheduled.length;
+  const done=scheduled.filter((_,i)=>{
+    const ci=apt.cars.indexOf(scheduled[i]);
+    return isDone(apt.id,ci,activeDay);
+  }).length;
+  const pct=total?Math.round(done/total*100):0;
+  const btn=document.querySelector(`[onclick="goDetail('${aptId}')"]`); if(!btn) return;
+  const badge=btn.querySelector('.ab-badge');
+  const bar=btn.querySelector('.ab-prog-fill');
+  if(badge){
+    let cls='b-some', txt=`${done}/${total}`;
+    if(done===total&&total>0){cls='b-all';txt=`${done}/${total} ✓`;}
+    badge.className=`ab-badge ${cls}`;
+    badge.textContent=txt;
+  }
+  if(bar) bar.style.width=pct+'%';
+}
+
+/* ════════════════════════════════════
+   RESET
+════════════════════════════════════ */
+function doReset(){
+  const scope=curApt?APTS.find(a=>a.id===curApt)?.name:'전체';
+  const dayName=DAYS.find(d=>d.key===activeDay)?.name;
+  if(!confirm(`[${scope}] ${dayName}요일 완료 체크를 모두 초기화할까요?`)) return;
+  if(curApt){
+    const apt=APTS.find(a=>a.id===curApt);
+    apt?.cars.forEach((_,ci)=>setDone(apt.id,ci,activeDay,false));
+    renderDetail();
+  } else {
+    APTS.forEach(apt=>apt.cars.forEach((_,ci)=>setDone(apt.id,ci,activeDay,false)));
+    renderHome();
+  }
+  showToast('초기화 완료');
+}
+
+/* ════════════════════════════════════
+   LEGEND
+════════════════════════════════════ */
+function openSheet(){ document.getElementById('legend-sheet').classList.add('on'); }
+function closeSheet(){ document.getElementById('legend-sheet').classList.remove('on'); }
+
+/* ════════════════════════════════════
+   TOAST
+════════════════════════════════════ */
+let _tt;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('on');
+  clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove('on'),1600);
+}
+
+/* ════════════════════════════════════
+   INIT
+════════════════════════════════════ */
+updateDate();
+renderHome();
+</script>
+</body>
+</html>
