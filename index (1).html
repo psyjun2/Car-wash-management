@@ -10,7 +10,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html{font-size:16px;}
+html{
+  font-size:16px;
+  /* iOS 스크롤 바운스 방지 */
+  overscroll-behavior:none;
+  /* 텍스트 사이즈 자동 조정 방지 */
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+}
 body{
   font-family:'Noto Sans KR',sans-serif;
   background:#f0f2f7;
@@ -18,6 +25,17 @@ body{
   min-height:100dvh;
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
+  /* 모바일 스크롤 관성 */
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:none;
+  /* 사용자 선택 기본 비활성 (터치 오조작 방지) */
+  -webkit-user-select:none;
+  user-select:none;
+}
+/* 입력창만 텍스트 선택 허용 */
+input, textarea {
+  -webkit-user-select:text;
+  user-select:text;
 }
 :root{
   --bg:#f0f2f7;
@@ -38,58 +56,90 @@ body{
 }
 
 /* ── PAGE SYSTEM ── */
-.page{display:none;min-height:100dvh;flex-direction:column;}
+.page{
+  display:none;
+  height:100dvh;
+  max-height:100dvh;
+  flex-direction:column;
+  overflow:hidden;
+}
 .page.on{display:flex;}
 .safe-t{height:var(--safe-t);background:var(--white);flex-shrink:0;}
 
 /* ── TOP BAR ── */
 .topbar{
-  background:var(--white);border-bottom:1px solid var(--border);
-  height:54px;padding:0 16px;
+  background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(0,0,0,0.06);
+  height:56px;padding:0 18px;
   display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:100;flex-shrink:0;
-  box-shadow:0 1px 6px rgba(0,0,0,0.05);
+  box-shadow:0 1px 0 rgba(0,0,0,0.05);
 }
-.tb-logo{font-size:18px;font-weight:900;letter-spacing:-0.5px;}
+.tb-logo{font-size:19px;font-weight:900;letter-spacing:-0.5px;}
 .tb-logo em{color:var(--blue);font-style:normal;}
 .tb-date{
   font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
   color:var(--muted);background:var(--bg);border:1px solid var(--border);
-  padding:3px 10px;border-radius:20px;
+  padding:4px 11px;border-radius:20px;
 }
 .tb-back{
-  display:flex;align-items:center;gap:5px;
-  font-size:14px;font-weight:700;color:var(--blue);cursor:pointer;padding:6px 0;
+  display:flex;align-items:center;gap:4px;
+  font-size:15px;font-weight:700;color:var(--blue);
+  cursor:pointer;padding:8px 0;min-width:48px;
+  /* 충분한 터치 영역 */
+  min-height:44px;
 }
 .tb-center{font-size:15px;font-weight:800;color:var(--text);}
 .tb-spacer{width:52px;}
 
 /* ── SCROLL BODY ── */
-.scroll{flex:1;overflow-y:auto;scrollbar-width:none;}
+.scroll{
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-y:contain;
+  scrollbar-width:none;
+  min-height:0; /* flex child 스크롤 핵심 */
+}
 .scroll::-webkit-scrollbar{display:none;}
 
 /* ════════════════════════
    HOME PAGE
 ════════════════════════ */
-.home-body{padding:16px 14px calc(var(--safe-b)+76px);}
+.home-body{
+  padding:20px 20px calc(var(--safe-b)+88px);
+  display:flex;flex-direction:column;gap:14px;
+}
+
+/* 홈 카드 래퍼 */
+.home-card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:20px 18px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
 
 /* 요일 탭 */
 .day-tabs{
-  display:flex;gap:6px;margin-bottom:18px;
+  display:flex;gap:8px;margin-bottom:0;
   overflow-x:auto;scrollbar-width:none;padding-bottom:2px;
 }
 .day-tabs::-webkit-scrollbar{display:none;}
 .dt{
   flex:1;min-width:0;
-  display:flex;flex-direction:column;align-items:center;gap:3px;
-  padding:10px 4px;border-radius:var(--rs);
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:13px 6px;border-radius:var(--rs);
   border:1.5px solid var(--border);background:var(--white);
   cursor:pointer;transition:all .16s;
+  min-height:72px;
 }
-.dt .dn{font-size:12px;font-weight:700;color:var(--muted);}
+.dt .dn{font-size:13px;font-weight:700;color:var(--muted);}
 .dt .dc{
   font-family:'JetBrains Mono',monospace;
-  font-size:16px;font-weight:700;color:var(--text);line-height:1;
+  font-size:20px;font-weight:700;color:var(--text);line-height:1;
 }
 .dt .dl{font-size:9px;font-weight:600;color:var(--dim);}
 .dt.on{border-color:var(--blue);background:var(--blue);}
@@ -97,113 +147,121 @@ body{
 .dt.on .dc{color:#fff;}
 .dt.on .dl{color:rgba(255,255,255,0.6);}
 
-/* 요약 바 */
-.summary-bar{
-  background:var(--white);border:1px solid var(--border);border-radius:var(--r);
-  padding:14px 16px;margin-bottom:18px;
-  box-shadow:0 1px 4px rgba(0,0,0,0.05);
-}
-.sb-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.sb-title{font-size:13px;font-weight:700;color:var(--text);}
+/* 요약 바 — home-card 내부 */
+.summary-bar{background:none;border:none;padding:0;margin:0;box-shadow:none;}
+.sb-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sb-title{font-size:14px;font-weight:700;color:var(--text);}
 .carryover-badge{
   display:inline-flex;align-items:center;gap:4px;
-  font-size:10px;font-weight:700;
+  font-size:11px;font-weight:700;
   background:rgba(234,88,12,0.10);color:#ea580c;
   border:1px solid rgba(234,88,12,0.25);
-  padding:3px 8px;border-radius:20px;
+  padding:4px 10px;border-radius:20px;
 }
-.sb-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;}
+.sb-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
 .sb-num{
-  display:flex;flex-direction:column;align-items:center;gap:2px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
   background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);
-  padding:10px 4px;
+  padding:14px 4px;
 }
-.sb-num .nv{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;line-height:1;}
-.sb-num .nl{font-size:10px;font-weight:600;color:var(--muted);}
+.sb-num .nv{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;line-height:1;}
+.sb-num .nl{font-size:11px;font-weight:600;color:var(--muted);}
 .sb-num.n-total .nv{color:var(--blue);}
 .sb-num.n-done  .nv{color:var(--green);}
 .sb-num.n-left  .nv{color:#d97706;}
 .prog-wrap{display:flex;align-items:center;gap:10px;}
-.prog-bg{flex:1;height:8px;background:var(--bg);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
-.prog-fg{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:4px;transition:width .4s cubic-bezier(.4,0,.2,1);}
-.prog-pct{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--green);flex-shrink:0;min-width:36px;text-align:right;}
+.prog-bg{flex:1;height:10px;background:var(--bg);border:1px solid var(--border);border-radius:5px;overflow:hidden;}
+.prog-fg{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:5px;transition:width .4s cubic-bezier(.4,0,.2,1);}
+.prog-pct{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--green);flex-shrink:0;min-width:40px;text-align:right;}
 
 /* 섹션 타이틀 */
 .sec-title{
-  font-size:11px;font-weight:800;color:var(--muted);
+  font-size:12px;font-weight:800;color:var(--muted);
   letter-spacing:.5px;text-transform:uppercase;
-  margin-bottom:10px;padding-left:2px;
+  margin-bottom:14px;padding-left:2px;
 }
 
 /* 아파트 버튼 그리드 */
-.apt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.apt-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .apt-btn{
   background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);
-  padding:14px 12px 12px;cursor:pointer;
+  padding:16px 14px 14px;cursor:pointer;
   display:flex;flex-direction:column;gap:6px;
-  box-shadow:0 1px 4px rgba(0,0,0,0.05);
-  transition:all .15s;position:relative;overflow:hidden;
+  box-shadow:0 2px 8px rgba(0,0,0,0.06);
+  transition:transform .14s, box-shadow .14s;
+  position:relative;overflow:hidden;
   text-align:left;-webkit-user-select:none;user-select:none;
+  min-height:110px;
 }
-.apt-btn:active{transform:scale(.96);box-shadow:none;}
+.apt-btn:active{transform:scale(.96);box-shadow:0 0 0 rgba(0,0,0,0);}
 .apt-btn.has-schedule{border-color:rgba(37,99,235,.25);}
-.ab-icon{font-size:20px;line-height:1;}
-.ab-name{font-size:12px;font-weight:800;color:var(--text);line-height:1.3;}
-.ab-info{font-size:10px;color:var(--muted);font-weight:600;}
+.ab-name{
+  font-size:15px;font-weight:900;color:var(--text);
+  line-height:1.35;word-break:keep-all;
+  padding-right:40px;/* 배지 공간 */
+}
+.ab-info{font-size:12px;color:var(--muted);font-weight:600;}
 /* 미니 진행바 */
-.ab-prog{height:3px;background:var(--bg);border:1px solid var(--border);border-radius:2px;overflow:hidden;margin-top:2px;}
+.ab-prog{height:4px;background:var(--bg);border:1px solid var(--border);border-radius:2px;overflow:hidden;margin-top:4px;}
 .ab-prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s;}
 /* 배지 */
 .ab-badge{
-  position:absolute;top:10px;right:10px;
-  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
-  padding:2px 6px;border-radius:6px;
+  position:absolute;top:12px;right:12px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+  padding:3px 8px;border-radius:6px;
 }
 .ab-badge.b-some{background:rgba(22,163,74,.10);color:var(--green);border:1px solid rgba(22,163,74,.2);}
 .ab-badge.b-none{background:var(--bg);color:var(--dim);border:1px solid var(--border);}
 .ab-badge.b-all{background:rgba(37,99,235,.10);color:var(--blue);border:1px solid rgba(37,99,235,.2);}
 /* 해당 요일 예정 없으면 흐리게 */
-.apt-btn.no-schedule{opacity:.45;}
-.ab-arrow{position:absolute;bottom:10px;right:12px;color:var(--dim);font-size:14px;}
+.apt-btn.no-schedule{opacity:.42;}
+.ab-arrow{
+  position:absolute;bottom:12px;right:14px;
+  color:var(--border2);font-size:18px;font-weight:300;
+}
 
 /* ════════════════════════
    DETAIL PAGE
 ════════════════════════ */
 
-/* 아파트 히어로 */
+/* 아파트 히어로 — 카드 스타일 */
 .apt-hero{
   background:var(--white);border-bottom:1px solid var(--border);
-  padding:14px 16px 12px;flex-shrink:0;
+  padding:18px 20px 16px;flex-shrink:0;
 }
-.ah-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.ah-icon{font-size:24px;}
-.ah-name{font-size:16px;font-weight:900;color:var(--text);}
-.ah-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.ah-row{display:flex;align-items:center;margin-bottom:14px;}
+.ah-name{font-size:18px;font-weight:900;color:var(--text);}
+.ah-sub{font-size:12px;color:var(--muted);margin-top:3px;}
 .ah-stat-row{
   display:flex;background:var(--bg);border:1px solid var(--border);
   border-radius:var(--rs);overflow:hidden;
 }
-.ahs{flex:1;padding:9px 0;text-align:center;border-right:1px solid var(--border);}
+.ahs{flex:1;padding:13px 0;text-align:center;border-right:1px solid var(--border);}
 .ahs:last-child{border-right:none;}
-.ahs .av{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:700;line-height:1;}
-.ahs .al{font-size:10px;color:var(--muted);margin-top:3px;font-weight:600;}
+.ahs .av{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;line-height:1;}
+.ahs .al{font-size:11px;color:var(--muted);margin-top:4px;font-weight:600;}
 .ahs.at .av{color:var(--blue);}
 .ahs.ad .av{color:var(--green);}
 .ahs.ar .av{color:#d97706;}
 
 /* 차량 카드 리스트 */
-.car-list{padding:12px 12px calc(var(--safe-b)+76px);}
+.car-list{
+  padding:20px 20px calc(var(--safe-b)+96px);
+  display:flex;flex-direction:column;gap:12px;
+}
+.car-list > .car-card{ margin-bottom:0; }
+.car-list > .memo-card-wrap{ margin-bottom:0; }
 
 .empty-msg{
-  text-align:center;padding:48px 24px;
-  color:var(--muted);font-size:14px;font-weight:600;
+  text-align:center;padding:56px 24px;
+  color:var(--muted);font-size:15px;font-weight:600;
 }
-.empty-msg .ei{font-size:36px;margin-bottom:10px;}
+.empty-msg .ei{font-size:40px;margin-bottom:12px;}
 
 .car-card{
   background:var(--white);border:1px solid var(--border);
-  border-radius:var(--r);margin-bottom:10px;overflow:hidden;
-  box-shadow:0 1px 4px rgba(0,0,0,0.05);
+  border-radius:var(--r);overflow:hidden;
+  box-shadow:0 2px 8px rgba(0,0,0,0.06);
   transition:all .15s;
 }
 .car-card.done-card{
@@ -226,20 +284,20 @@ body{
 
 /* 카드 상단 */
 .cc-top{
-  display:flex;align-items:center;gap:10px;
-  padding:12px 14px 10px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+  padding:16px 18px 13px;border-bottom:1px solid var(--border);
 }
 .cc-num{
   font-family:'JetBrains Mono',monospace;
-  font-size:16px;font-weight:700;color:var(--blue);
-  letter-spacing:1px;flex-shrink:0;min-width:50px;
+  font-size:18px;font-weight:700;color:var(--blue);
+  letter-spacing:1px;flex-shrink:0;min-width:54px;
 }
 .cc-info{flex:1;min-width:0;}
-.cc-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.cc-loc{font-size:11px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cc-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cc-loc{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .color-chip{
-  font-size:10px;font-weight:700;padding:2px 8px;
-  border-radius:5px;flex-shrink:0;white-space:nowrap;
+  font-size:11px;font-weight:700;padding:4px 10px;
+  border-radius:6px;flex-shrink:0;white-space:nowrap;
 }
 .cc-검정{background:#1e1e1e;color:#bbb;border:1px solid #444;}
 .cc-흰색{background:#f0f0f0;color:#444;border:1px solid #ccc;}
@@ -253,35 +311,155 @@ body{
 .cc-무광{background:#3a3a3a;color:#ccc;border:1px solid #555;}
 .cc-default{background:var(--border);color:var(--muted);border:1px solid var(--border2);}
 
-/* 노트 */
+/* 노트 — 탭하면 편집 */
 .cc-note{
-  font-size:11px;color:var(--muted);padding:7px 14px;
-  border-bottom:1px solid var(--border);line-height:1.5;
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:12px;
+  padding:12px 18px;
+  border-bottom:1px solid var(--border);
   background:#fafbff;
+  cursor:pointer;
+  transition:background .15s;
+  -webkit-user-select:none;user-select:none;
+  min-height:48px;
+}
+.cc-note:active{background:#f0f4ff;}
+.cc-note-content{flex:1;min-width:0;}
+.cc-note-text{
+  font-size:13px;color:var(--muted);line-height:1.5;
+  white-space:pre-wrap;word-break:break-all;
+}
+.cc-note-text.empty{color:var(--dim);font-style:italic;}
+.cc-note-meta{
+  display:flex;align-items:center;gap:4px;
+  margin-top:4px;
+}
+.cc-note-date{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--dim);font-weight:500;
+}
+.cc-note-edit-icon{
+  flex-shrink:0;
+  width:34px;height:34px;border-radius:10px;
+  background:var(--bg);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.cc-note:active .cc-note-edit-icon{
+  background:var(--accent-g);border-color:rgba(37,99,235,.3);
 }
 
-/* 체크 영역 — 심플하게 */
+/* ── 메모 편집 모달 ── */
+.memo-modal{
+  position:fixed;inset:0;z-index:400;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  opacity:0;pointer-events:none;
+  transition:opacity .22s;
+}
+.memo-modal.on{opacity:1;pointer-events:all;}
+.memo-modal-bg{
+  position:absolute;inset:0;
+  background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);
+}
+.memo-panel{
+  position:relative;
+  background:var(--white);
+  border-radius:22px 22px 0 0;
+  padding:0 0 calc(var(--safe-b)+16px);
+  box-shadow:0 -8px 40px rgba(0,0,0,0.14);
+  animation:sup .26s cubic-bezier(.4,0,.2,1);
+  max-height:80dvh;
+  display:flex;flex-direction:column;
+}
+.memo-panel-handle{
+  width:36px;height:4px;background:var(--border2);
+  border-radius:2px;margin:14px auto 0;flex-shrink:0;
+}
+.memo-panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px 10px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.memo-panel-title{font-size:15px;font-weight:800;color:var(--text);}
+.memo-panel-car{font-size:11px;color:var(--muted);margin-top:2px;}
+.memo-close-x{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--bg);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:16px;color:var(--muted);
+  flex-shrink:0;
+}
+.memo-body{padding:14px 18px;flex:1;overflow-y:auto;}
+.memo-textarea{
+  width:100%;min-height:120px;max-height:240px;
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:var(--rs);padding:12px 14px;
+  font-size:14px;color:var(--text);line-height:1.6;
+  font-family:'Noto Sans KR',sans-serif;
+  outline:none;resize:none;
+  transition:border-color .18s;
+  -webkit-user-select:text;user-select:text;
+}
+.memo-textarea:focus{border-color:var(--blue);}
+.memo-textarea::placeholder{color:var(--dim);}
+.memo-char-hint{
+  font-size:11px;color:var(--dim);margin-top:6px;text-align:right;
+  font-family:'JetBrains Mono',monospace;
+}
+.memo-last-edit{
+  display:flex;align-items:center;gap:6px;
+  margin-top:10px;padding:8px 12px;
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--rs);
+}
+.memo-last-edit-label{font-size:11px;color:var(--muted);font-weight:600;}
+.memo-last-edit-date{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--blue);font-weight:700;
+}
+.memo-footer{
+  display:flex;gap:10px;padding:0 18px;flex-shrink:0;
+}
+.memo-cancel-btn{
+  flex:1;height:50px;border-radius:var(--rs);
+  background:var(--bg);color:var(--muted);
+  border:1.5px solid var(--border);
+  font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;
+  cursor:pointer;transition:all .15s;
+}
+.memo-cancel-btn:active{transform:scale(.97);}
+.memo-save-btn{
+  flex:2;height:50px;border-radius:var(--rs);
+  background:var(--blue);color:#fff;border:none;
+  font-size:15px;font-weight:800;font-family:'Noto Sans KR',sans-serif;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+  box-shadow:0 4px 14px rgba(37,99,235,.3);transition:all .15s;
+}
+.memo-save-btn:active{transform:scale(.97);box-shadow:none;}
+
+/* 체크 영역 */
 .cc-check-row{
   display:flex;align-items:center;justify-content:space-between;
-  padding:12px 14px;
+  padding:14px 18px;
 }
-.cc-check-left{display:flex;flex-direction:column;gap:2px;}
-.cc-check-status{font-size:12px;font-weight:700;}
+.cc-check-left{display:flex;flex-direction:column;gap:3px;}
+.cc-check-status{font-size:14px;font-weight:700;}
 .cc-check-status.s-wait{color:var(--muted);}
 .cc-check-status.s-done{color:var(--green);}
 .cc-check-status.s-carry{color:#ea580c;}
-.cc-check-hint{font-size:10px;color:var(--dim);}
+.cc-check-hint{font-size:11px;color:var(--dim);}
 
 /* 큰 체크 버튼 */
 .chk-btn{
-  width:48px;height:48px;border-radius:50%;
+  width:52px;height:52px;border-radius:50%;
   border:2.5px solid var(--border2);background:#f8f9fc;
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;transition:all .15s cubic-bezier(.34,1.56,.64,1);
   flex-shrink:0;
+  /* 최소 터치 영역 44px 이상 확보 */
+  min-width:44px;min-height:44px;
   -webkit-user-select:none;user-select:none;
 }
-.chk-btn:active{transform:scale(.85);}
+.chk-btn:active{transform:scale(.84);}
 .chk-btn svg{display:none;}
 .chk-btn.done{
   border-color:var(--green);
@@ -294,19 +472,63 @@ body{
 /* ── BOTTOM NAV ── */
 .bnav{
   position:fixed;bottom:0;left:0;right:0;
-  background:var(--white);border-top:1px solid var(--border);
-  padding:8px 0 calc(var(--safe-b)+4px);
-  display:flex;z-index:200;
-  box-shadow:0 -2px 12px rgba(0,0,0,.06);
+  background:rgba(255,255,255,0.96);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-top:1px solid rgba(0,0,0,0.07);
+  padding:6px 16px calc(var(--safe-b)+6px);
+  display:flex;gap:0;z-index:200;
+  box-shadow:0 -4px 24px rgba(0,0,0,0.07);
 }
 .bnav-btn{
   flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
-  padding:5px 0;cursor:pointer;
+  padding:8px 6px;cursor:pointer;border-radius:16px;
+  transition:all .18s cubic-bezier(.4,0,.2,1);
+  -webkit-user-select:none;user-select:none;
 }
-.bnav-btn:active{opacity:.55;}
-.bnav-icon{font-size:20px;line-height:1;}
-.bnav-lbl{font-size:10px;font-weight:700;color:var(--muted);}
-.bnav-btn.on .bnav-lbl{color:var(--blue);}
+.bnav-btn:active{transform:scale(.90);opacity:.6;}
+.bnav-icon-wrap{
+  width:48px;height:30px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:12px;
+  transition:all .22s cubic-bezier(.34,1.56,.64,1);
+}
+/* 기본 아이콘 색 */
+.bnav-icon-wrap svg{ transition:stroke .18s; stroke:#b0bac8; }
+/* 라벨 기본 */
+.bnav-lbl{
+  font-size:10px;font-weight:700;
+  color:#b0bac8;letter-spacing:-.1px;
+  transition:color .18s;
+}
+
+/* 홈 — 파란색 */
+.bnav-btn.on-home .bnav-icon-wrap{
+  background:var(--blue);
+  box-shadow:0 3px 10px rgba(37,99,235,.3);
+  transform:scale(1.06);
+}
+.bnav-btn.on-home .bnav-icon-wrap svg{ stroke:#fff; }
+.bnav-btn.on-home .bnav-lbl{ color:var(--blue); }
+
+/* 차량관리 — 파란색 */
+.bnav-btn.on-manage .bnav-icon-wrap{
+  background:var(--blue);
+  box-shadow:0 3px 10px rgba(37,99,235,.3);
+  transform:scale(1.06);
+}
+.bnav-btn.on-manage .bnav-icon-wrap svg{ stroke:#fff; }
+.bnav-btn.on-manage .bnav-lbl{ color:var(--blue); }
+
+/* 초기화 — 빨간색 (항상) */
+.bnav-btn.btn-reset .bnav-icon-wrap{
+  background:rgba(220,38,38,.10);
+  border-radius:12px;
+}
+.bnav-btn.btn-reset .bnav-icon-wrap svg{ stroke:#dc2626; }
+.bnav-btn.btn-reset .bnav-lbl{ color:#dc2626; }
+.bnav-btn.btn-reset:active{
+  transform:scale(.90);opacity:.7;
+}
 
 /* ── LEGEND SHEET ── */
 .sheet{position:fixed;inset:0;z-index:300;display:none;}
@@ -354,108 +576,151 @@ body{
 /* ══════════════════════════════
    MANAGE PAGE
 ══════════════════════════════ */
-.manage-body{padding:16px 14px calc(var(--safe-b)+80px);}
-.mg-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;}
+.manage-body{
+  padding:20px 20px calc(var(--safe-b)+100px);
+  display:flex;flex-direction:column;gap:14px;
+}
+
+/* 탭 */
+.mg-tabs{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  margin:0;
+}
 .mg-tab{
   display:flex;align-items:center;justify-content:center;gap:6px;
-  padding:12px 8px;border-radius:var(--rs);
+  padding:15px 8px;border-radius:var(--rs);
   border:1.5px solid var(--border);background:var(--white);
-  font-size:13px;font-weight:700;color:var(--muted);
+  font-size:14px;font-weight:700;color:var(--muted);
   cursor:pointer;transition:all .16s;
   box-shadow:0 1px 4px rgba(0,0,0,.05);
+  min-height:54px;
 }
 .mg-tab.on{border-color:var(--blue);background:var(--blue);color:#fff;}
+
+/* 폼 카드 래퍼 */
+.mg-form-card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:22px 18px 8px;
+  margin-bottom:16px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* 섹션 타이틀 */
 .mg-section-title{
-  font-size:11px;font-weight:800;color:var(--muted);
-  letter-spacing:.5px;text-transform:uppercase;
-  margin-bottom:14px;padding-left:2px;
+  font-size:12px;font-weight:800;color:var(--muted);
+  letter-spacing:.6px;text-transform:uppercase;
+  margin-bottom:20px;padding-left:2px;
 }
-.mg-field{margin-bottom:16px;}
-.mg-label{display:block;font-size:12px;font-weight:700;color:var(--text);margin-bottom:7px;}
-.mg-req{color:var(--blue);}
+
+/* 필드 — 필드 사이 여백 넉넉히 */
+.mg-field{margin-bottom:22px;}
+
+/* 라벨 */
+.mg-label{
+  display:block;font-size:14px;font-weight:700;
+  color:var(--text);margin-bottom:10px;
+}
+.mg-req{color:#dc2626;}
+
+/* 입력창 */
 .mg-input{
-  width:100%;height:46px;padding:0 14px;
-  background:var(--white);border:1.5px solid var(--border);
-  border-radius:var(--rs);font-size:14px;color:var(--text);
+  width:100%;height:54px;padding:0 18px;
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:var(--rs);font-size:15px;color:var(--text);
   font-family:'Noto Sans KR',sans-serif;outline:none;
-  transition:border-color .18s;box-shadow:0 1px 3px rgba(0,0,0,.04);
+  transition:border-color .18s;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.04);
 }
-.mg-input:focus{border-color:var(--blue);}
+.mg-input:focus{border-color:var(--blue);background:var(--white);}
 .mg-input::placeholder{color:var(--dim);}
+
+/* 셀렉트 */
 .mg-select-wrap{position:relative;}
 .mg-select{
-  width:100%;height:46px;padding:0 36px 0 14px;
-  background:var(--white);border:1.5px solid var(--border);
-  border-radius:var(--rs);font-size:14px;color:var(--text);
+  width:100%;height:54px;padding:0 44px 0 18px;
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:var(--rs);font-size:15px;color:var(--text);
   font-family:'Noto Sans KR',sans-serif;outline:none;
   appearance:none;-webkit-appearance:none;
-  transition:border-color .18s;box-shadow:0 1px 3px rgba(0,0,0,.04);
+  transition:border-color .18s;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.04);
 }
-.mg-select:focus{border-color:var(--blue);}
-.mg-select-arrow{position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted);}
+.mg-select:focus{border-color:var(--blue);background:var(--white);}
+.mg-select-arrow{
+  position:absolute;right:16px;top:50%;
+  transform:translateY(-50%);pointer-events:none;color:var(--muted);
+}
+
+/* 요일 버튼 */
 .mg-day-btns{display:flex;gap:8px;}
 .mg-day{
-  flex:1;height:44px;display:flex;align-items:center;justify-content:center;
+  flex:1;height:54px;
+  display:flex;align-items:center;justify-content:center;
   border-radius:var(--rs);border:1.5px solid var(--border);
-  background:var(--white);font-size:14px;font-weight:700;
+  background:var(--bg);font-size:16px;font-weight:700;
   color:var(--muted);cursor:pointer;transition:all .15s;
-  box-shadow:0 1px 3px rgba(0,0,0,.04);
 }
 .mg-day.on{border-color:var(--blue);background:var(--blue);color:#fff;}
+
+/* 등록 버튼 */
 .mg-submit-btn{
-  width:100%;height:52px;border-radius:var(--r);
+  width:100%;height:58px;border-radius:var(--r);
   background:var(--blue);color:#fff;border:none;
-  font-size:15px;font-weight:800;font-family:'Noto Sans KR',sans-serif;
+  font-size:16px;font-weight:800;font-family:'Noto Sans KR',sans-serif;
   cursor:pointer;display:flex;align-items:center;justify-content:center;
-  gap:8px;margin-top:8px;
-  box-shadow:0 4px 16px rgba(37,99,235,.3);transition:all .15s;
+  gap:8px;margin-top:4px;
+  box-shadow:0 4px 20px rgba(37,99,235,.3);transition:all .15s;
 }
 .mg-submit-btn:active{transform:scale(.97);box-shadow:none;}
+
+/* 삭제 검색 */
 .mg-search-row{
-  display:flex;align-items:center;gap:10px;
+  display:flex;align-items:center;gap:12px;
   background:var(--white);border:1.5px solid var(--border);
-  border-radius:var(--rs);padding:0 14px;height:46px;
-  margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04);
+  border-radius:var(--rs);padding:0 18px;height:54px;
+  margin-bottom:16px;
+  box-shadow:0 1px 4px rgba(0,0,0,.05);
 }
 .mg-search-row:focus-within{border-color:var(--blue);}
 .mg-search{
   flex:1;background:none;border:none;outline:none;
-  font-size:14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;
+  font-size:15px;color:var(--text);font-family:'Noto Sans KR',sans-serif;
 }
 .mg-search::placeholder{color:var(--dim);}
 .del-card{
   background:var(--white);border:1.5px solid var(--border);
-  border-radius:var(--r);margin-bottom:10px;overflow:hidden;
+  border-radius:var(--r);margin-bottom:12px;overflow:hidden;
   box-shadow:0 1px 4px rgba(0,0,0,.05);
 }
-.del-card-body{display:flex;align-items:center;gap:12px;padding:13px 14px;}
+.del-card-body{display:flex;align-items:center;gap:14px;padding:15px 16px;}
 .del-apt-tag{
-  font-size:10px;font-weight:700;color:var(--blue);
+  font-size:11px;font-weight:700;color:var(--blue);
   background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);
-  padding:2px 7px;border-radius:5px;flex-shrink:0;white-space:nowrap;
+  padding:3px 9px;border-radius:6px;flex-shrink:0;white-space:nowrap;
 }
 .del-car-info{flex:1;min-width:0;}
-.del-car-num{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--blue);}
-.del-car-name{font-size:12px;font-weight:700;color:var(--text);margin-top:1px;}
-.del-car-sub{font-size:11px;color:var(--muted);margin-top:1px;}
-.del-sched{
-  display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;
-}
+.del-car-num{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--blue);}
+.del-car-name{font-size:13px;font-weight:700;color:var(--text);margin-top:2px;}
+.del-car-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.del-sched{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;}
 .del-sched-day{
-  font-size:10px;font-weight:700;
+  font-size:11px;font-weight:700;
   background:rgba(37,99,235,.07);color:var(--blue);
   border:1px solid rgba(37,99,235,.15);
-  padding:1px 6px;border-radius:4px;
+  padding:2px 7px;border-radius:4px;
 }
 .del-btn{
-  width:38px;height:38px;border-radius:50%;
+  width:48px;height:48px;border-radius:50%;
   background:rgba(220,38,38,.08);border:1.5px solid rgba(220,38,38,.25);
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;flex-shrink:0;transition:all .15s;
+  min-width:48px;min-height:48px;
 }
 .del-btn:active{transform:scale(.88);background:rgba(220,38,38,.18);}
-.del-empty{text-align:center;padding:40px 24px;color:var(--muted);font-size:13px;font-weight:600;}
-.del-empty .dei{font-size:32px;margin-bottom:10px;}
+.del-empty{text-align:center;padding:48px 24px;color:var(--muted);font-size:14px;font-weight:600;}
+.del-empty .dei{font-size:36px;margin-bottom:12px;}
 
 /* ── 등록 완료 모달 ── */
 .success-modal{
@@ -628,6 +893,141 @@ body{
   cursor:pointer;transition:all .15s;
 }
 .ddm-close-btn:active{transform:scale(.97);}
+
+/* ── 초기화 확인 모달 ── */
+.reset-modal{
+  position:fixed;inset:0;z-index:400;
+  display:flex;align-items:center;justify-content:center;
+  padding:28px;
+  opacity:0;pointer-events:none;
+  transition:opacity .22s;
+}
+.reset-modal.on{opacity:1;pointer-events:all;}
+.rm-bg{position:absolute;inset:0;background:rgba(0,0,0,0.35);backdrop-filter:blur(5px);}
+.rm-card{
+  position:relative;background:var(--white);
+  border-radius:22px;padding:30px 22px 22px;
+  width:100%;max-width:320px;
+  box-shadow:0 24px 64px rgba(0,0,0,0.18);
+  text-align:center;
+  transform:scale(.86) translateY(18px);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.reset-modal.on .rm-card{transform:scale(1) translateY(0);}
+
+/* 아이콘 원 */
+.rm-circle{
+  width:68px;height:68px;border-radius:50%;
+  background:linear-gradient(135deg,#f59e0b,#fbbf24);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 16px;
+  box-shadow:0 8px 24px rgba(245,158,11,.3);
+}
+.reset-modal.on .rm-circle{animation:bounce-in .38s .08s cubic-bezier(.34,1.56,.64,1) both;}
+
+.rm-title{font-size:17px;font-weight:900;color:var(--text);margin-bottom:6px;}
+
+/* 스코프 뱃지 */
+.rm-scope{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:700;
+  background:rgba(245,158,11,.10);color:#d97706;
+  border:1px solid rgba(245,158,11,.28);
+  padding:4px 12px;border-radius:20px;margin-bottom:14px;
+}
+
+/* 정보 박스 */
+.rm-info{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--rs);padding:13px 16px;
+  margin-bottom:20px;text-align:left;
+}
+.rm-info-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;}
+.rm-info-row+.rm-info-row{border-top:1px solid var(--border);}
+.rm-info-key{font-size:11px;color:var(--muted);font-weight:600;}
+.rm-info-val{font-size:13px;font-weight:800;color:var(--text);}
+.rm-warn{
+  font-size:11px;color:#d97706;margin-bottom:18px;line-height:1.6;
+  background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);
+  border-radius:var(--rs);padding:9px 12px;text-align:left;
+}
+
+/* 버튼 */
+.rm-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.rm-cancel{
+  height:48px;border-radius:var(--rs);
+  background:var(--bg);color:var(--muted);
+  border:1.5px solid var(--border);
+  font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;
+  cursor:pointer;transition:all .15s;
+}
+.rm-cancel:active{transform:scale(.97);}
+.rm-confirm{
+  height:48px;border-radius:var(--rs);
+  background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#fff;border:none;
+  font-size:14px;font-weight:800;font-family:'Noto Sans KR',sans-serif;
+  cursor:pointer;transition:all .15s;
+  box-shadow:0 4px 14px rgba(245,158,11,.35);
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.rm-confirm:active{transform:scale(.97);box-shadow:none;}
+
+/* ── 색상 변경 모달 ── */
+.color-modal{
+  position:fixed;inset:0;z-index:400;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  opacity:0;pointer-events:none;transition:opacity .22s;
+}
+.color-modal.on{opacity:1;pointer-events:all;}
+.color-modal-bg{position:absolute;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);}
+.color-panel{
+  position:relative;background:var(--white);
+  border-radius:22px 22px 0 0;
+  padding:0 0 calc(var(--safe-b)+20px);
+  box-shadow:0 -8px 40px rgba(0,0,0,0.14);
+  animation:sup .26s cubic-bezier(.4,0,.2,1);
+}
+.color-panel-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:14px auto 0;display:block;}
+.color-panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px 12px;border-bottom:1px solid var(--border);
+}
+.color-panel-title{font-size:15px;font-weight:800;color:var(--text);}
+.color-panel-car{font-size:11px;color:var(--muted);margin-top:2px;}
+.color-close-x{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--bg);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:14px;color:var(--muted);flex-shrink:0;
+}
+.color-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:10px;padding:18px 20px;
+}
+.color-option{
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:14px 8px;border-radius:var(--r);
+  border:2px solid var(--border);background:var(--bg);
+  cursor:pointer;transition:all .15s;
+  -webkit-user-select:none;user-select:none;
+  min-height:80px;justify-content:center;
+}
+.color-option:active{transform:scale(.93);}
+.color-option.selected{border-color:var(--blue);background:rgba(37,99,235,.07);}
+.co-swatch{
+  width:32px;height:32px;border-radius:50%;
+  border:2px solid rgba(0,0,0,0.12);flex-shrink:0;
+}
+.co-label{font-size:12px;font-weight:700;color:var(--text);}
+.color-option.selected .co-label{color:var(--blue);}
+.co-check{
+  position:absolute;top:7px;right:7px;
+  width:18px;height:18px;border-radius:50%;
+  background:var(--blue);
+  display:none;align-items:center;justify-content:center;
+}
+.color-option.selected .co-check{display:flex;}
 </style>
 </head>
 <body>
@@ -638,42 +1038,63 @@ body{
 <div class="page on" id="pg-home">
   <div class="safe-t"></div>
   <div class="topbar">
-    <div class="tb-logo">세차<em>LOG</em></div>
+    <div class="tb-logo">꼼꼬미<em>차량관리</em></div>
     <div class="tb-date" id="home-date">—</div>
   </div>
   <div class="scroll">
     <div class="home-body">
 
-      <!-- 요일 탭 -->
-      <div class="day-tabs" id="day-tabs"></div>
+      <!-- 요일 탭 카드 -->
+      <div class="home-card" style="padding:16px 18px;">
+        <div class="day-tabs" id="day-tabs"></div>
+      </div>
 
-      <!-- 오늘 요약 -->
-      <div class="summary-bar">
-        <div class="sb-title-row">
-          <span class="sb-title" id="sb-daytitle">오늘 세차 현황</span>
-          <span class="carryover-badge" id="sb-carryover" style="display:none">↩ 이월 0대</span>
-        </div>
-        <div class="sb-nums">
-          <div class="sb-num n-total"><div class="nv" id="sb-total">0</div><div class="nl">예정</div></div>
-          <div class="sb-num n-done"> <div class="nv" id="sb-done">0</div> <div class="nl">완료</div></div>
-          <div class="sb-num n-left"> <div class="nv" id="sb-left">0</div> <div class="nl">남은</div></div>
-        </div>
-        <div class="prog-wrap">
-          <div class="prog-bg"><div class="prog-fg" id="sb-bar" style="width:0%"></div></div>
-          <span class="prog-pct" id="sb-pct">0%</span>
+      <!-- 오늘 요약 카드 -->
+      <div class="home-card">
+        <div class="summary-bar">
+          <div class="sb-title-row">
+            <span class="sb-title" id="sb-daytitle">오늘 세차 현황</span>
+            <span class="carryover-badge" id="sb-carryover" style="display:none">↩ 이월 0대</span>
+          </div>
+          <div class="sb-nums">
+            <div class="sb-num n-total"><div class="nv" id="sb-total">0</div><div class="nl">예정</div></div>
+            <div class="sb-num n-done"> <div class="nv" id="sb-done">0</div> <div class="nl">완료</div></div>
+            <div class="sb-num n-left"> <div class="nv" id="sb-left">0</div> <div class="nl">남은</div></div>
+          </div>
+          <div class="prog-wrap">
+            <div class="prog-bg"><div class="prog-fg" id="sb-bar" style="width:0%"></div></div>
+            <span class="prog-pct" id="sb-pct">0%</span>
+          </div>
         </div>
       </div>
 
-      <!-- 아파트 -->
-      <div class="sec-title">아파트 선택</div>
-      <div class="apt-grid" id="apt-grid"></div>
+      <!-- 아파트 선택 카드 -->
+      <div class="home-card">
+        <div class="sec-title">아파트 선택</div>
+        <div class="apt-grid" id="apt-grid"></div>
+      </div>
 
     </div>
   </div>
   <div class="bnav">
-    <div class="bnav-btn on"><div class="bnav-icon">🏠</div><div class="bnav-lbl">홈</div></div>
-    <div class="bnav-btn" onclick="goManage()"><div class="bnav-icon">🚗</div><div class="bnav-lbl">차량관리</div></div>
-    <div class="bnav-btn" onclick="doReset()"><div class="bnav-icon">🔄</div><div class="bnav-lbl">초기화</div></div>
+    <div class="bnav-btn on-home" onclick="goHome()">
+      <div class="bnav-icon-wrap">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      </div>
+      <div class="bnav-lbl">홈</div>
+    </div>
+    <div class="bnav-btn on-manage" onclick="goManage()">
+      <div class="bnav-icon-wrap">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><circle cx="12" cy="13" r="2"/><path d="M12 15v3"/></svg>
+      </div>
+      <div class="bnav-lbl">차량관리</div>
+    </div>
+    <div class="bnav-btn btn-reset" onclick="doReset()">
+      <div class="bnav-icon-wrap">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+      </div>
+      <div class="bnav-lbl">초기화</div>
+    </div>
   </div>
 </div>
 
@@ -694,9 +1115,24 @@ body{
     <div class="car-list" id="car-list"></div>
   </div>
   <div class="bnav">
-    <div class="bnav-btn" onclick="goHome()"><div class="bnav-icon">🏠</div><div class="bnav-lbl">홈</div></div>
-    <div class="bnav-btn" onclick="goManage()"><div class="bnav-icon">🚗</div><div class="bnav-lbl">차량관리</div></div>
-    <div class="bnav-btn" onclick="doReset()"><div class="bnav-icon">🔄</div><div class="bnav-lbl">초기화</div></div>
+    <div class="bnav-btn on-home" onclick="goHome()">
+      <div class="bnav-icon-wrap">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      </div>
+      <div class="bnav-lbl">홈</div>
+    </div>
+    <div class="bnav-btn on-manage" onclick="goManage()">
+      <div class="bnav-icon-wrap">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><circle cx="12" cy="13" r="2"/><path d="M12 15v3"/></svg>
+      </div>
+      <div class="bnav-lbl">차량관리</div>
+    </div>
+    <div class="bnav-btn btn-reset" onclick="doReset()">
+      <div class="bnav-icon-wrap">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+      </div>
+      <div class="bnav-lbl">초기화</div>
+    </div>
   </div>
 </div>
 
@@ -717,84 +1153,88 @@ body{
     <div class="manage-body">
 
       <!-- 탭 -->
-      <div class="mg-tabs">
-        <div class="mg-tab on" id="tab-add" onclick="switchTab('add')">
-          <span>➕</span> 신규 차량 등록
-        </div>
-        <div class="mg-tab" id="tab-del" onclick="switchTab('del')">
-          <span>🗑️</span> 차량 삭제
+      <div class="home-card" style="padding:14px 18px;">
+        <div class="mg-tabs">
+          <div class="mg-tab on" id="tab-add" onclick="switchTab('add')">
+            <span>➕</span> 신규 차량 등록
+          </div>
+          <div class="mg-tab" id="tab-del" onclick="switchTab('del')">
+            <span>🗑️</span> 차량 삭제
+          </div>
         </div>
       </div>
 
       <!-- ── 신규 등록 패널 ── -->
       <div id="panel-add">
-        <div class="mg-section-title">차량 정보 입력</div>
+        <div class="mg-form-card">
+          <div class="mg-section-title">차량 정보 입력</div>
 
-        <!-- 아파트 선택 -->
-        <div class="mg-field">
-          <label class="mg-label">아파트 <span class="mg-req">*</span></label>
-          <div class="mg-select-wrap">
-            <select class="mg-select" id="add-apt">
-              <option value="">아파트를 선택하세요</option>
-            </select>
-            <svg class="mg-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <!-- 아파트 선택 -->
+          <div class="mg-field">
+            <label class="mg-label">아파트 <span class="mg-req">*</span></label>
+            <div class="mg-select-wrap">
+              <select class="mg-select" id="add-apt">
+                <option value="">아파트를 선택하세요</option>
+              </select>
+              <svg class="mg-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
           </div>
-        </div>
 
-        <!-- 차번호 -->
-        <div class="mg-field">
-          <label class="mg-label">차량 번호 끝 4자리 <span class="mg-req">*</span></label>
-          <input class="mg-input" id="add-num" type="text" maxlength="6" placeholder="예: 1234" inputmode="text">
-        </div>
-
-        <!-- 차종 -->
-        <div class="mg-field">
-          <label class="mg-label">차종 <span class="mg-req">*</span></label>
-          <input class="mg-input" id="add-car" type="text" placeholder="예: 벤츠E, BMW X5">
-        </div>
-
-        <!-- 위치 -->
-        <div class="mg-field">
-          <label class="mg-label">주차 위치</label>
-          <input class="mg-input" id="add-loc" type="text" placeholder="예: B1, B3/B4">
-        </div>
-
-        <!-- 색상 -->
-        <div class="mg-field">
-          <label class="mg-label">색상</label>
-          <div class="mg-select-wrap">
-            <select class="mg-select" id="add-col">
-              <option value="—">선택안함</option>
-              <option value="검정">검정</option>
-              <option value="흰색">흰색</option>
-              <option value="은색">은색</option>
-              <option value="남색">남색</option>
-              <option value="청색">청색</option>
-              <option value="금색">금색</option>
-              <option value="빨강">빨강</option>
-              <option value="회색">회색</option>
-              <option value="무광">무광</option>
-            </select>
-            <svg class="mg-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <!-- 차번호 -->
+          <div class="mg-field">
+            <label class="mg-label">차량 번호 끝 4자리 <span class="mg-req">*</span></label>
+            <input class="mg-input" id="add-num" type="text" maxlength="6" placeholder="예: 1234" inputmode="text">
           </div>
-        </div>
 
-        <!-- 세차 요일 -->
-        <div class="mg-field">
-          <label class="mg-label">세차 예정 요일 <span class="mg-req">*</span></label>
-          <div class="mg-day-btns">
-            <div class="mg-day" data-day="sun">일</div>
-            <div class="mg-day" data-day="mon">월</div>
-            <div class="mg-day" data-day="tue">화</div>
-            <div class="mg-day" data-day="wed">수</div>
-            <div class="mg-day" data-day="thu">목</div>
+          <!-- 차종 -->
+          <div class="mg-field">
+            <label class="mg-label">차종 <span class="mg-req">*</span></label>
+            <input class="mg-input" id="add-car" type="text" placeholder="예: 벤츠E, BMW X5">
           </div>
-        </div>
 
-        <!-- 비고 -->
-        <div class="mg-field">
-          <label class="mg-label">비고 메모</label>
-          <input class="mg-input" id="add-note" type="text" placeholder="예: 거의고정, 내부요청시 유료">
+          <!-- 위치 -->
+          <div class="mg-field">
+            <label class="mg-label">주차 위치</label>
+            <input class="mg-input" id="add-loc" type="text" placeholder="예: B1, B3/B4">
+          </div>
+
+          <!-- 색상 -->
+          <div class="mg-field">
+            <label class="mg-label">색상</label>
+            <div class="mg-select-wrap">
+              <select class="mg-select" id="add-col">
+                <option value="—">선택안함</option>
+                <option value="검정">검정</option>
+                <option value="흰색">흰색</option>
+                <option value="은색">은색</option>
+                <option value="남색">남색</option>
+                <option value="청색">청색</option>
+                <option value="금색">금색</option>
+                <option value="빨강">빨강</option>
+                <option value="회색">회색</option>
+                <option value="무광">무광</option>
+              </select>
+              <svg class="mg-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+
+          <!-- 세차 요일 -->
+          <div class="mg-field">
+            <label class="mg-label">세차 예정 요일 <span class="mg-req">*</span></label>
+            <div class="mg-day-btns">
+              <div class="mg-day" data-day="sun">일</div>
+              <div class="mg-day" data-day="mon">월</div>
+              <div class="mg-day" data-day="tue">화</div>
+              <div class="mg-day" data-day="wed">수</div>
+              <div class="mg-day" data-day="thu">목</div>
+            </div>
+          </div>
+
+          <!-- 비고 -->
+          <div class="mg-field">
+            <label class="mg-label">비고 메모</label>
+            <input class="mg-input" id="add-note" type="text" placeholder="예: 거의고정, 내부요청시 유료">
+          </div>
         </div>
 
         <button class="mg-submit-btn" onclick="submitAdd()">
@@ -805,23 +1245,28 @@ body{
 
       <!-- ── 차량 삭제 패널 ── -->
       <div id="panel-del" style="display:none">
-        <div class="mg-section-title">삭제할 차량 선택</div>
+        <div class="mg-form-card">
+          <div class="mg-section-title">삭제할 차량 선택</div>
 
-        <!-- 아파트 필터 -->
-        <div class="mg-field">
-          <label class="mg-label">아파트</label>
-          <div class="mg-select-wrap">
-            <select class="mg-select" id="del-apt" onchange="renderDeleteList()">
-              <option value="all">전체 아파트</option>
-            </select>
-            <svg class="mg-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <!-- 아파트 필터 -->
+          <div class="mg-field">
+            <label class="mg-label">아파트</label>
+            <div class="mg-select-wrap">
+              <select class="mg-select" id="del-apt" onchange="renderDeleteList()">
+                <option value="all">전체 아파트</option>
+              </select>
+              <svg class="mg-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
           </div>
-        </div>
 
-        <!-- 검색 -->
-        <div class="mg-search-row">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="mg-search" id="del-search" type="search" placeholder="차번호·차종으로 검색" oninput="renderDeleteList()">
+          <!-- 검색 -->
+          <div class="mg-field" style="margin-bottom:6px;">
+            <label class="mg-label">차번호 · 차종 검색</label>
+            <div class="mg-search-row" style="margin-bottom:0;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input class="mg-search" id="del-search" type="search" placeholder="차번호·차종으로 검색" oninput="renderDeleteList()">
+            </div>
+          </div>
         </div>
 
         <div id="del-list"></div>
@@ -831,9 +1276,107 @@ body{
   </div>
 
   <div class="bnav">
-    <div class="bnav-btn" onclick="goHome()"><div class="bnav-icon">🏠</div><div class="bnav-lbl">홈</div></div>
-    <div class="bnav-btn on"><div class="bnav-icon">🚗</div><div class="bnav-lbl">차량관리</div></div>
-    <div class="bnav-btn" onclick="doReset()"><div class="bnav-icon">🔄</div><div class="bnav-lbl">초기화</div></div>
+    <div class="bnav-btn" onclick="goHome()">
+      <div class="bnav-icon-wrap">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      </div>
+      <div class="bnav-lbl">홈</div>
+    </div>
+    <div class="bnav-btn on-manage">
+      <div class="bnav-icon-wrap">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><circle cx="12" cy="13" r="2"/><path d="M12 15v3"/></svg>
+      </div>
+      <div class="bnav-lbl">차량관리</div>
+    </div>
+    <div class="bnav-btn btn-reset" onclick="doReset()">
+      <div class="bnav-icon-wrap">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+      </div>
+      <div class="bnav-lbl">초기화</div>
+    </div>
+  </div>
+</div>
+
+<!-- 색상 변경 모달 -->
+<div class="color-modal" id="color-modal">
+  <div class="color-modal-bg" onclick="closeColorModal()"></div>
+  <div class="color-panel">
+    <div class="color-panel-handle"></div>
+    <div class="color-panel-header">
+      <div>
+        <div class="color-panel-title">🎨 차량 색상 변경</div>
+        <div class="color-panel-car" id="color-car-info">—</div>
+      </div>
+      <div class="color-close-x" onclick="closeColorModal()">✕</div>
+    </div>
+    <div class="color-grid" id="color-grid"></div>
+  </div>
+</div>
+
+<!-- 초기화 확인 모달 -->
+<div class="reset-modal" id="reset-modal">
+  <div class="rm-bg" onclick="closeResetModal()"></div>
+  <div class="rm-card">
+    <div class="rm-circle">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/>
+      </svg>
+    </div>
+    <div class="rm-title">완료 체크 초기화</div>
+    <div class="rm-scope" id="rm-scope">—</div>
+    <div class="rm-info">
+      <div class="rm-info-row">
+        <span class="rm-info-key">대상 요일</span>
+        <span class="rm-info-val" id="rm-day">—</span>
+      </div>
+      <div class="rm-info-row">
+        <span class="rm-info-key">대상 구역</span>
+        <span class="rm-info-val" id="rm-area">—</span>
+      </div>
+      <div class="rm-info-row">
+        <span class="rm-info-key">초기화 차량</span>
+        <span class="rm-info-val" id="rm-count">—</span>
+      </div>
+    </div>
+    <div class="rm-warn">⚠️ 완료 체크가 모두 해제됩니다.<br>이 작업은 되돌릴 수 없습니다.</div>
+    <div class="rm-btns">
+      <button class="rm-cancel" onclick="closeResetModal()">취소</button>
+      <button class="rm-confirm" onclick="confirmReset()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+        초기화
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 메모 편집 모달 -->
+<div class="memo-modal" id="memo-modal">
+  <div class="memo-modal-bg" onclick="closeMemoModal()"></div>
+  <div class="memo-panel">
+    <div class="memo-panel-handle"></div>
+    <div class="memo-panel-header">
+      <div>
+        <div class="memo-panel-title">✏️ 메모 편집</div>
+        <div class="memo-panel-car" id="memo-car-info">—</div>
+      </div>
+      <div class="memo-close-x" onclick="closeMemoModal()">✕</div>
+    </div>
+    <div class="memo-body">
+      <textarea class="memo-textarea" id="memo-textarea" placeholder="메모를 입력하세요&#10;예) 거의고정, 내부요청시 유료" maxlength="100"></textarea>
+      <div class="memo-char-hint"><span id="memo-char-count">0</span>/100</div>
+      <div class="memo-last-edit" id="memo-last-edit-row" style="display:none">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span class="memo-last-edit-label">마지막 수정</span>
+        <span class="memo-last-edit-date" id="memo-last-edit-date">—</span>
+      </div>
+    </div>
+    <div class="memo-footer">
+      <button class="memo-cancel-btn" onclick="closeMemoModal()">취소</button>
+      <button class="memo-save-btn" onclick="saveMemo()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        저장
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1162,7 +1705,6 @@ function buildDayTabs(){
     <div class="dt${d.key===activeDay?' on':''}" data-day="${d.key}">
       <span class="dn">${d.name}요일</span>
       <span class="dc">${total}</span>
-      <span class="dl">대 예정</span>
     </div>`;
   }).join('');
   el.querySelectorAll('.dt').forEach(b=>b.addEventListener('click',()=>{
@@ -1216,10 +1758,9 @@ function buildAptGrid(){
       else { badgeCls='b-some'; badgeText=`${done}/${total}`; }
     }
     const carryoverHtml=carryovers>0
-      ?`<div style="font-size:10px;font-weight:700;color:#ea580c;margin-top:2px;">↩ 이월 ${carryovers}대</div>`:'';
+      ?`<div style="font-size:11px;font-weight:700;color:#ea580c;margin-top:2px;">↩ 이월 ${carryovers}대</div>`:'';
     return `
     <div class="apt-btn${hasSchedule?' has-schedule':' no-schedule'}" onclick="${hasSchedule?`goDetail('${apt.id}')`:''}" style="${!hasSchedule?'cursor:default':''}">
-      <div class="ab-icon">${apt.icon}</div>
       <div class="ab-name">${apt.name}</div>
       <div class="ab-info">${hasSchedule?`${total}대 예정`:'이날 없음'}</div>
       ${carryoverHtml}
@@ -1243,7 +1784,6 @@ function buildHeroHtml(apt){
   const dayName=DAYS.find(d=>d.key===activeDay)?.name;
   return `
     <div class="ah-row">
-      <span class="ah-icon">${apt.icon}</span>
       <div style="flex:1;min-width:0;">
         <div class="ah-name">${apt.name}</div>
         <div class="ah-sub">${dayName}요일 · 예정 ${total}대${carryovers>0?` · <span style="color:#ea580c">↩ 이월 ${carryovers}대</span>`:''}</div>
@@ -1303,6 +1843,14 @@ function renderDetail(){
     else if(co_) cardClass+=' carryover-card';
     const coFrom=co_?carryoverFromDay(apt,ci,activeDay):'';
 
+    // 메모: localStorage에서 최신 메모 우선, 없으면 원본 note
+    const noteKey=`note_${apt.id}_${ci}`;
+    const dateKey=`note_date_${apt.id}_${ci}`;
+    const savedNote=localStorage.getItem(noteKey);
+    const currentNote=savedNote!==null?savedNote:car.note;
+    const noteDate=localStorage.getItem(dateKey)||'';
+    const noteEmpty=!currentNote||currentNote.trim()==='';
+
     return `
     <div class="${cardClass}" id="card-${apt.id}-${ci}">
       <div class="cc-top">
@@ -1312,9 +1860,17 @@ function renderDetail(){
           <div class="cc-loc">${car.loc}</div>
         </div>
         ${co_?`<span class="carryover-tag">↩ ${coFrom}이월</span>`
-             :`<span class="color-chip ${colCls(car.col)}">${car.col}</span>`}
+             :`<span class="color-chip ${colCls(car.col)}" style="cursor:pointer;" onclick="openColorModal('${apt.id}',${ci},'${car.num}','${car.car.replace(/'/g,"\\'")}',event)" id="chip-${apt.id}-${ci}">${getCurrentCol(apt.id,ci,car.col)}</span>`}
       </div>
-      ${car.note?`<div class="cc-note">${car.note}</div>`:''}
+      <div class="cc-note" onclick="openMemoModal('${apt.id}',${ci},'${car.num}','${car.car.replace(/'/g,"\\'")}')">
+        <div class="cc-note-content">
+          <div class="cc-note-text${noteEmpty?' empty':''}">${noteEmpty?'메모 없음 — 탭하여 추가':currentNote}</div>
+          ${noteDate?`<div class="cc-note-meta"><span class="cc-note-date">수정 ${noteDate}</span></div>`:''}
+        </div>
+        <div class="cc-note-edit-icon">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </div>
+      </div>
       <div class="cc-check-row">
         <div class="cc-check-left">
           <div class="cc-check-status ${done_?'s-done':co_?'s-carry':'s-wait'}" id="status-${apt.id}-${ci}">
@@ -1332,7 +1888,7 @@ function renderDetail(){
   }).join('');
 
   if(apt.memo){
-    el.innerHTML+=`<div style="margin-top:8px;border-radius:10px;padding:9px 12px;background:rgba(37,99,235,.04);border:1px solid rgba(37,99,235,.15);font-size:11px;color:var(--muted);line-height:1.6;">📌 ${apt.memo}</div>`;
+    el.innerHTML+=`<div style="border-radius:var(--r);padding:14px 18px;background:rgba(37,99,235,.04);border:1px solid rgba(37,99,235,.15);font-size:12px;color:var(--muted);line-height:1.7;">📌 ${apt.memo}</div>`;
   }
 }
 
@@ -1407,18 +1963,41 @@ function refreshAptBadge(aptId){
    RESET
 ════════════════════════════════════ */
 function doReset(){
-  const scope=curApt?APTS.find(a=>a.id===curApt)?.name:'전체';
-  const dayName=DAYS.find(d=>d.key===activeDay)?.name;
-  if(!confirm(`[${scope}] ${dayName}요일 완료 체크를 모두 초기화할까요?`)) return;
+  const dayName = DAYS.find(d=>d.key===activeDay)?.name;
+  const scope   = curApt ? APTS.find(a=>a.id===curApt)?.name : '전체';
+
+  // 초기화 대상 차량 수 계산
+  let count = 0;
   if(curApt){
-    const apt=APTS.find(a=>a.id===curApt);
+    const apt = APTS.find(a=>a.id===curApt);
+    apt?.cars.forEach((_,ci)=>{ if(isDone(apt.id,ci,activeDay)) count++; });
+  } else {
+    APTS.forEach(apt=>apt.cars.forEach((_,ci)=>{ if(isDone(apt.id,ci,activeDay)) count++; }));
+  }
+
+  // 모달 내용 세팅
+  document.getElementById('rm-scope').textContent = scope;
+  document.getElementById('rm-day').textContent   = `${dayName}요일`;
+  document.getElementById('rm-area').textContent  = scope;
+  document.getElementById('rm-count').textContent = `${count}대`;
+  document.getElementById('reset-modal').classList.add('on');
+}
+
+function closeResetModal(){
+  document.getElementById('reset-modal').classList.remove('on');
+}
+
+function confirmReset(){
+  closeResetModal();
+  if(curApt){
+    const apt = APTS.find(a=>a.id===curApt);
     apt?.cars.forEach((_,ci)=>setDone(apt.id,ci,activeDay,false));
     renderDetail();
   } else {
     APTS.forEach(apt=>apt.cars.forEach((_,ci)=>setDone(apt.id,ci,activeDay,false)));
     renderHome();
   }
-  showToast('초기화 완료');
+  showToast('🔄 초기화 완료');
 }
 
 /* ════════════════════════════════════
@@ -1616,8 +2195,153 @@ function closeDeleteDoneModal(){
 }
 
 /* ════════════════════════════════════
-   SUCCESS MODAL
+   COLOR MODAL
 ════════════════════════════════════ */
+const COLORS=[
+  {name:'검정',swatch:'#1e1e1e'},
+  {name:'흰색',swatch:'#f0f0f0'},
+  {name:'은색',swatch:'#c8d0dc'},
+  {name:'남색',swatch:'#1e3a70'},
+  {name:'청색',swatch:'#1860a8'},
+  {name:'금색',swatch:'#9a7a20'},
+  {name:'빨강',swatch:'#8a1818'},
+  {name:'회색',swatch:'#888888'},
+  {name:'무광',swatch:'#3a3a3a'},
+  {name:'남희색',swatch:'#243a5e'},
+];
+const colKey=(a,ci)=>`color_${a}_${ci}`;
+function getSavedCol(a,ci){return localStorage.getItem(colKey(a,ci));}
+function saveCol(a,ci,col){localStorage.setItem(colKey(a,ci),col);}
+function getCurrentCol(aptId,ci,def){return getSavedCol(aptId,ci)||def;}
+
+let _colorTarget=null;
+
+function openColorModal(aptId,ci,num,carName,e){
+  e.stopPropagation();
+  _colorTarget={aptId,ci};
+  const apt=APTS.find(a=>a.id===aptId);
+  const curCol=getCurrentCol(aptId,ci,apt?.cars[ci]?.col||'—');
+  document.getElementById('color-car-info').textContent=`${num}  ${carName}`;
+  const grid=document.getElementById('color-grid');
+  grid.innerHTML=COLORS.map(c=>`
+    <div class="color-option${curCol===c.name?' selected':''}" onclick="selectColor('${c.name}')">
+      <div class="co-check">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="co-swatch" style="background:${c.swatch}"></div>
+      <div class="co-label">${c.name}</div>
+    </div>`).join('');
+  document.getElementById('color-modal').classList.add('on');
+}
+
+function closeColorModal(){
+  document.getElementById('color-modal').classList.remove('on');
+  _colorTarget=null;
+}
+
+function selectColor(colorName){
+  if(!_colorTarget) return;
+  const {aptId,ci}=_colorTarget;
+  saveCol(aptId,ci,colorName);
+  const chipEl=document.getElementById(`chip-${aptId}-${ci}`);
+  if(chipEl){chipEl.className=`color-chip ${colCls(colorName)}`;chipEl.textContent=colorName;}
+  closeColorModal();
+  showToast(`🎨 ${colorName}(으)로 변경했습니다`);
+}
+
+/* ════════════════════════════════════
+   MEMO MODAL
+════════════════════════════════════ */
+let _memoTarget = null; // {aptId, ci, num, carName}
+
+function openMemoModal(aptId, ci, num, carName){
+  _memoTarget = {aptId, ci};
+
+  // 현재 메모 불러오기
+  const noteKey  = `note_${aptId}_${ci}`;
+  const dateKey  = `note_date_${aptId}_${ci}`;
+  const apt      = APTS.find(a=>a.id===aptId);
+  const car      = apt?.cars[ci];
+  const saved    = localStorage.getItem(noteKey);
+  const current  = saved!==null ? saved : (car?.note||'');
+  const lastDate = localStorage.getItem(dateKey)||'';
+
+  // 모달 내용 세팅
+  document.getElementById('memo-car-info').textContent = `${num}  ${carName}`;
+  const ta = document.getElementById('memo-textarea');
+  ta.value = current;
+  document.getElementById('memo-char-count').textContent = current.length;
+
+  // 마지막 수정일 표시
+  const lastRow = document.getElementById('memo-last-edit-row');
+  if(lastDate){
+    lastRow.style.display='flex';
+    document.getElementById('memo-last-edit-date').textContent = lastDate;
+  } else {
+    lastRow.style.display='none';
+  }
+
+  document.getElementById('memo-modal').classList.add('on');
+
+  // 키보드 올라올 때 textarea 포커스 (약간 딜레이)
+  setTimeout(()=>{ ta.focus(); ta.selectionStart=ta.selectionEnd=ta.value.length; }, 300);
+}
+
+function closeMemoModal(){
+  document.getElementById('memo-modal').classList.remove('on');
+  _memoTarget = null;
+}
+
+function saveMemo(){
+  if(!_memoTarget) return;
+  const {aptId, ci} = _memoTarget;
+  const newNote = document.getElementById('memo-textarea').value.trim();
+
+  // 날짜 포맷: M/D(요일) HH:MM
+  const now   = new Date();
+  const names = ['일','월','화','수','목','금','토'];
+  const dateStr = `${now.getMonth()+1}/${now.getDate()}(${names[now.getDay()]}) `
+    + `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  localStorage.setItem(`note_${aptId}_${ci}`, newNote);
+  localStorage.setItem(`note_date_${aptId}_${ci}`, dateStr);
+
+  closeMemoModal();
+
+  // 카드 메모 영역 즉시 업데이트 (전체 리렌더 없이)
+  const card = document.getElementById(`card-${aptId}-${ci}`);
+  if(card){
+    const noteTextEl = card.querySelector('.cc-note-text');
+    const noteMetaEl = card.querySelector('.cc-note-meta');
+    const noteEmpty  = !newNote;
+    if(noteTextEl){
+      noteTextEl.className = `cc-note-text${noteEmpty?' empty':''}`;
+      noteTextEl.textContent = noteEmpty ? '메모 없음 — 탭하여 추가' : newNote;
+    }
+    if(noteMetaEl){
+      noteMetaEl.innerHTML = `<span class="cc-note-date">수정 ${dateStr}</span>`;
+    } else {
+      const contentEl = card.querySelector('.cc-note-content');
+      if(contentEl){
+        const meta = document.createElement('div');
+        meta.className='cc-note-meta';
+        meta.innerHTML=`<span class="cc-note-date">수정 ${dateStr}</span>`;
+        contentEl.appendChild(meta);
+      }
+    }
+  }
+
+  showToast('✅ 메모 저장 완료');
+}
+
+// textarea 글자 수 카운트
+document.addEventListener('input', e=>{
+  if(e.target.id==='memo-textarea'){
+    document.getElementById('memo-char-count').textContent = e.target.value.length;
+  }
+});
+
+
 function showSuccessModal({aptName, num, car, loc, col, sched}){
   document.getElementById('sm-apt-name').textContent = aptName;
   document.getElementById('sm-num').textContent = num;
