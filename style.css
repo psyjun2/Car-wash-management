@@ -94,11 +94,13 @@ input, textarea {
 }
 .scroll::-webkit-scrollbar{display:none;}
 
+
+
 /* ════════════════════════
    HOME PAGE
 ════════════════════════ */
 .home-body{
-  padding:20px 20px calc(var(--safe-b)+120px);
+  padding:20px 20px 120px;
   display:flex;flex-direction:column;gap:14px;
 }
 
@@ -240,7 +242,7 @@ input, textarea {
 
 /* 차량 카드 리스트 */
 .car-list{
-  padding:20px 20px calc(var(--safe-b)+96px);
+  padding:20px 20px 120px;
   display:flex;flex-direction:column;gap:12px;
 }
 .car-list > .car-card{ margin-bottom:0; }
@@ -571,7 +573,7 @@ input, textarea {
    MANAGE PAGE
 ══════════════════════════════ */
 .manage-body{
-  padding:20px 20px calc(var(--safe-b)+100px);
+  padding:20px 20px 0;
   display:flex;flex-direction:column;gap:14px;
 }
 
