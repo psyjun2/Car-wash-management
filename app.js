@@ -207,7 +207,11 @@ function updateDate(){
 ════════════════════════════════════ */
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  document.getElementById(id).classList.add('on');
+  const page = document.getElementById(id);
+  page.classList.add('on');
+  // 페이지 전환 시 스크롤 최상단으로
+  const scrollEl = page.querySelector('.scroll');
+  if(scrollEl) scrollEl.scrollTop = 0;
 }
 function goHome(){ curApt=null; showPage('pg-home'); renderHome(); }
 function goDetail(aptId){ curApt=aptId; showPage('pg-detail'); renderDetail(); }
@@ -282,13 +286,14 @@ function buildAptGrid(){
     const hasSchedule=total>0;
     let badgeCls='b-none', badgeText='없음';
     if(total>0){
-      if(done===total){ badgeCls='b-all'; badgeText=`${done}/${total} ✓`; }
+      if(done===total){ badgeCls='b-all'; badgeText=''; }
       else { badgeCls='b-some'; badgeText=`${done}/${total}`; }
     }
+    const isAllDone = total>0 && done===total;
     const carryoverHtml=carryovers>0
       ?`<div style="font-size:11px;font-weight:700;color:#ea580c;margin-top:2px;">↩ 이월 ${carryovers}대</div>`:'';
     return `
-    <div class="apt-btn${hasSchedule?' has-schedule':' no-schedule'}" onclick="${hasSchedule?`goDetail('${apt.id}')`:''}" style="${!hasSchedule?'cursor:default':''}">
+    <div class="apt-btn${hasSchedule?' has-schedule':' no-schedule'}${isAllDone?' all-done':''}" onclick="${hasSchedule?`goDetail('${apt.id}')`:''}" style="${!hasSchedule?'cursor:default':''}">
       <div class="ab-name">${apt.name}</div>
       <div class="ab-info">${hasSchedule?`${total}대 예정`:'이날 없음'}</div>
       ${carryoverHtml}
@@ -474,15 +479,22 @@ function refreshAptBadge(aptId){
   const done=visible.filter(ci=>isDone(apt.id,ci,activeDay)).length;
   const carryovers=visible.filter(ci=>isCarryoverOnDay(apt,ci,activeDay)).length;
   const pct=total?Math.round(done/total*100):0;
+  const isAllDone=total>0&&done===total;
   const btnEl=document.querySelector(`[onclick="goDetail('${aptId}')"]`); if(!btnEl) return;
   const badge=btnEl.querySelector('.ab-badge');
   const bar=btnEl.querySelector('.ab-prog-fill');
   const coEl=btnEl.querySelector('[style*="ea580c"]');
   if(badge){
-    const cls=done===total&&total>0?'b-all':'b-some';
-    const txt=`${done}/${total}${done===total&&total>0?' ✓':''}`;
-    badge.className=`ab-badge ${cls}`; badge.textContent=txt;
+    if(isAllDone){
+      badge.className='ab-badge b-all';
+      badge.textContent='';
+    } else {
+      badge.className='ab-badge b-some';
+      badge.textContent=`${done}/${total}`;
+    }
   }
+  // 전체 완료 → 빨간 테두리
+  btnEl.classList.toggle('all-done', isAllDone);
   if(bar) bar.style.width=pct+'%';
   if(coEl) coEl.textContent=carryovers>0?`↩ 이월 ${carryovers}대`:'';
 }

@@ -98,7 +98,7 @@ input, textarea {
    HOME PAGE
 ════════════════════════ */
 .home-body{
-  padding:20px 20px calc(var(--safe-b)+88px);
+  padding:20px 20px calc(var(--safe-b)+120px);
   display:flex;flex-direction:column;gap:14px;
 }
 
@@ -201,7 +201,12 @@ input, textarea {
 }
 .ab-badge.b-some{background:rgba(22,163,74,.10);color:var(--green);border:1px solid rgba(22,163,74,.2);}
 .ab-badge.b-none{background:var(--bg);color:var(--dim);border:1px solid var(--border);}
-.ab-badge.b-all{background:rgba(37,99,235,.10);color:var(--blue);border:1px solid rgba(37,99,235,.2);}
+.ab-badge.b-all{display:none;}  /* 완료 배지 숨김 — 테두리로 표시 */
+/* 전체 완료 시 빨간 테두리 */
+.apt-btn.all-done{
+  border-color:#dc2626 !important;
+  box-shadow:0 0 0 1.5px rgba(220,38,38,.18), 0 2px 8px rgba(0,0,0,0.06);
+}
 /* 해당 요일 예정 없으면 흐리게 */
 .apt-btn.no-schedule{opacity:.42;}
 .ab-arrow{
