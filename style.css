@@ -515,6 +515,15 @@ input, textarea {
 .bnav-btn.on-manage .bnav-icon-wrap svg{ stroke:#fff; }
 .bnav-btn.on-manage .bnav-lbl{ color:var(--blue); }
 
+/* 신규등록 — 파란색 */
+.bnav-btn.on-add .bnav-icon-wrap{
+  background:var(--blue);
+  box-shadow:0 3px 10px rgba(37,99,235,.3);
+  transform:scale(1.06);
+}
+.bnav-btn.on-add .bnav-icon-wrap svg{ stroke:#fff; }
+.bnav-btn.on-add .bnav-lbl{ color:var(--blue); }
+
 /* 초기화 — 빨간색 (항상) */
 .bnav-btn.btn-reset .bnav-icon-wrap{
   background:rgba(220,38,38,.10);

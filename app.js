@@ -3,6 +3,53 @@
    schedule: 요일별 세차 예정 여부 (O 표시)
    sun=일(26), mon=월(19), tue=화(19), wed=수(23), thu=목(18)
 ════════════════════════════════════ */
+/* ════════════════════════════════════
+   BAD WORD FILTER
+════════════════════════════════════ */
+const BAD_WORDS = [
+  // 욕설
+  '씨발','시발','씨팔','시팔','쌍년','쌍놈','개새끼','개색끼','새끼','쉐끼','놈팡이',
+  '미친놈','미친년','병신','벙신','바보새끼','지랄','존나','좆','보지','자지','씹',
+  '개년','개놈','개좆','꺼져','닥쳐','찐따','등신','돌대가리','머저리','얼간이',
+  '빡대가리','쪽발이','쪽바리','왜놈','짱깨','흑형','깜둥이',
+  // 성관련
+  '섹스','섹쓰','야동','포르노','porn','sex','fuck','fucking','bitch','bastard',
+  '음란','성교','성기','강간','윤간','성폭행','성희롱','몸팔','몸파','원조교제',
+  '매춘','매음','창녀','갈보','화냥년','윤락',
+  // 법적 문제
+  '살인','살해','죽여','죽인다','칼로','폭탄','테러','마약','히로뽕','필로폰',
+  '대마초','코카인','헤로인','아편','투약','밀수','사기','협박','공갈','납치',
+  '감금','스토킹','해킹','불법','위조','사문서','탈세','뇌물','횡령','배임',
+];
+
+function checkBadWords(text) {
+  if (!text) return false;
+  const lower = text.toLowerCase().replace(/\s/g, '');
+  return BAD_WORDS.some(word => lower.includes(word.toLowerCase()));
+}
+
+function validateInputs(...texts) {
+  for (const text of texts) {
+    if (checkBadWords(text)) return false;
+  }
+  return true;
+}
+
+// 타이핑 입력란 실시간 감지 — 어느 한 박스라도 금지어 입력 즉시 팝업
+const WATCH_IDS = [
+  'add-num2','add-car2','add-loc2','add-note2',  // 신규등록 페이지
+  'add-num','add-car','add-loc','add-note',        // 차량관리 등록
+  'memo-textarea',                                  // 메모 편집
+];
+document.addEventListener('input', e => {
+  if (WATCH_IDS.includes(e.target.id)) {
+    if (checkBadWords(e.target.value)) {
+      showBadwordModal();
+      e.target.value = e.target.value.slice(0, -1); // 마지막 입력 글자 제거
+    }
+  }
+});
+
 const DAYS=[
   {key:'sun',name:'일',date:'26'},
   {key:'mon',name:'월',date:'19'},
@@ -214,7 +261,94 @@ function showPage(id){
   if(scrollEl) scrollEl.scrollTop = 0;
 }
 function goHome(){ curApt=null; showPage('pg-home'); renderHome(); }
+function goAdd(){
+  showPage('pg-add');
+  // 아파트 셀렉트 채우기
+  const sel=document.getElementById('add-apt2');
+  if(sel){
+    sel.innerHTML='<option value="">아파트를 선택하세요</option>'
+      +APTS.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  }
+  // 입력값 초기화
+  ['add-num2','add-car2','add-loc2','add-note2'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  const col=document.getElementById('add-col2'); if(col) col.value='—';
+  document.querySelectorAll('#add-days2 .mg-day').forEach(b=>b.classList.remove('on'));
+}
 function goDetail(aptId){ curApt=aptId; showPage('pg-detail'); renderDetail(); }
+
+// 신규등록 임시 저장
+let _pendingAdd = null;
+
+function submitAdd2(){
+  const aptId=document.getElementById('add-apt2').value;
+  const num  =document.getElementById('add-num2').value.trim();
+  const car  =document.getElementById('add-car2').value.trim();
+  const loc  =document.getElementById('add-loc2').value.trim();
+  const col  =document.getElementById('add-col2').value;
+  const note =document.getElementById('add-note2').value.trim();
+  const sched=[...document.querySelectorAll('#add-days2 .mg-day.on')].map(b=>b.dataset.day);
+
+  // 필수 항목 통합 체크
+  const missing2 = [];
+  if(!aptId)        missing2.push('아파트');
+  if(!num)          missing2.push('차량 번호');
+  if(!car)          missing2.push('차종');
+  if(!sched.length) missing2.push('세차 예정 요일');
+  if(missing2.length){ showRequiredModal(missing2.join(', ')); return; }
+
+  if(!validateInputs(num, car, loc, note)){
+    showBadwordModal(); return;
+  }
+
+  const apt=APTS.find(a=>a.id===aptId); if(!apt) return;
+  if(apt.cars.find(c=>c.num===num)){ showToast('⚠️ 이미 등록된 차량 번호입니다'); return; }
+
+  // 임시 저장 후 확인 팝업
+  _pendingAdd = {apt, num, car, col, loc:loc||'—', sched, note};
+  showAddConfirmModal();
+}
+
+function showAddConfirmModal(){
+  const {apt, num, car, col, loc, sched} = _pendingAdd;
+  const dayNames = sched.map(k=>DAYS.find(d=>d.key===k)?.name+'요일').join(', ');
+
+  document.getElementById('acm-apt').textContent   = apt.name;
+  document.getElementById('acm-num').textContent   = num;
+  document.getElementById('acm-car').textContent   = car;
+  document.getElementById('acm-loc').textContent   = loc;
+  document.getElementById('acm-col').textContent   = col;
+  document.getElementById('acm-sched').textContent = dayNames;
+  document.getElementById('add-confirm-modal').classList.add('on');
+}
+
+function closeAddConfirmModal(){
+  document.getElementById('add-confirm-modal').classList.remove('on');
+  _pendingAdd = null;
+}
+
+function confirmAddCar(){
+  if(!_pendingAdd) return;
+  const {apt, num, car, col, loc, sched, note} = _pendingAdd;
+
+  apt.cars.push({num, car, col, loc, sched, note});
+  saveApts();
+
+  document.getElementById('add-confirm-modal').classList.remove('on');
+  _pendingAdd = null;
+
+  // 입력 초기화
+  ['add-num2','add-car2','add-loc2','add-note2'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  const colEl=document.getElementById('add-col2'); if(colEl) colEl.value='—';
+  const aptEl=document.getElementById('add-apt2'); if(aptEl) aptEl.value='';
+  document.querySelectorAll('#add-days2 .mg-day').forEach(b=>b.classList.remove('on'));
+
+  showSuccessModal({aptName:apt.name, num, car, loc, col, sched});
+  renderHome();
+}
 
 /* ════════════════════════════════════
    HOME
@@ -610,10 +744,17 @@ function submitAdd(){
   const sched = [...document.querySelectorAll('.mg-day.on')].map(b=>b.dataset.day);
 
   // 유효성
-  if(!aptId){ showToast('⚠️ 아파트를 선택하세요'); return; }
-  if(!num)  { showToast('⚠️ 차량 번호를 입력하세요'); return; }
-  if(!car)  { showToast('⚠️ 차종을 입력하세요'); return; }
-  if(!sched.length){ showToast('⚠️ 세차 요일을 선택하세요'); return; }
+  // 필수 항목 통합 체크
+  const missing3 = [];
+  if(!aptId)        missing3.push('아파트');
+  if(!num)          missing3.push('차량 번호');
+  if(!car)          missing3.push('차종');
+  if(!sched.length) missing3.push('세차 예정 요일');
+  if(missing3.length){ showRequiredModal(missing3.join(', ')); return; }
+
+  if(!validateInputs(num, car, loc, note)){
+    showBadwordModal(); return;
+  }
 
   const apt = APTS.find(a=>a.id===aptId);
   if(!apt) return;
@@ -837,6 +978,12 @@ function saveMemo(){
   const {aptId, ci} = _memoTarget;
   const newNote = document.getElementById('memo-textarea').value.trim();
 
+  // 욕설/성관련/법적 단어 필터
+  if(!validateInputs(newNote)){
+    showBadwordModal();
+    return;
+  }
+
   // 날짜 포맷: M/D(요일) HH:MM
   const now   = new Date();
   const names = ['일','월','화','수','목','금','토'];
@@ -896,6 +1043,24 @@ function closeSuccessModal(){
   document.getElementById('success-modal').classList.remove('on');
 }
 
+
+/* ════════════════════════════════════
+   BADWORD MODAL
+════════════════════════════════════ */
+function showBadwordModal(){
+  document.getElementById('badword-modal').classList.add('on');
+}
+function closeBadwordModal(){
+  document.getElementById('badword-modal').classList.remove('on');
+}
+
+function showRequiredModal(missing){
+  document.getElementById('required-missing').textContent = missing + ' 항목을 입력해주세요';
+  document.getElementById('required-modal').classList.add('on');
+}
+function closeRequiredModal(){
+  document.getElementById('required-modal').classList.remove('on');
+}
 
 let _tt;
 function showToast(msg){
