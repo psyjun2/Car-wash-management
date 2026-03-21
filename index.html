@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#ffffff">
-<title>세차LOG</title>
+<title>출세했다</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -18,8 +18,10 @@
 <div class="page on" id="pg-home">
   <div class="safe-t"></div>
   <div class="topbar">
-    <div class="tb-logo">세차<em>LOG</em></div>
-    <div class="tb-date" id="home-date">—</div>
+    <div class="tb-logo"><em>출세</em>했다</div>
+    <div class="hamburger-btn" onclick="openSideMenu()">
+      <span></span><span></span><span></span>
+    </div>
   </div>
   <div class="scroll">
     <div class="home-body">
@@ -56,16 +58,16 @@
 
     </div>
   </div>
-    <div class="bnav">
-    <div class="bnav-btn on-home" onclick="goHome()">
+  <div class="bnav">
+    <div class="bnav-btn" onclick="goHome()">
       <div class="bnav-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>
       <div class="bnav-lbl">홈</div>
     </div>
-    <div class="bnav-btn" onclick="goAdd()">
+    <div class="bnav-btn on-add" onclick="goAdd()">
       <div class="bnav-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg></div>
       <div class="bnav-lbl">신규등록</div>
     </div>
-    <div class="bnav-btn" onclick="goManage()">
+    <div class="bnav-btn on-manage" onclick="goManage()">
       <div class="bnav-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><circle cx="12" cy="13" r="2"/><path d="M12 15v3"/></svg></div>
       <div class="bnav-lbl">차량관리</div>
     </div>
@@ -92,16 +94,16 @@
   <div class="scroll">
     <div class="car-list" id="car-list"></div>
   </div>
-    <div class="bnav">
+        <div class="bnav">
     <div class="bnav-btn on-home" onclick="goHome()">
       <div class="bnav-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>
       <div class="bnav-lbl">홈</div>
     </div>
-    <div class="bnav-btn" onclick="goAdd()">
+    <div class="bnav-btn " onclick="goAdd()">
       <div class="bnav-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg></div>
       <div class="bnav-lbl">신규등록</div>
     </div>
-    <div class="bnav-btn" onclick="goManage()">
+    <div class="bnav-btn " onclick="goManage()">
       <div class="bnav-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><circle cx="12" cy="13" r="2"/><path d="M12 15v3"/></svg></div>
       <div class="bnav-lbl">차량관리</div>
     </div>
@@ -160,12 +162,12 @@
     </div>
   </div>
 
-    <div class="bnav">
-    <div class="bnav-btn" onclick="goHome()">
+        <div class="bnav">
+    <div class="bnav-btn " onclick="goHome()">
       <div class="bnav-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>
       <div class="bnav-lbl">홈</div>
     </div>
-    <div class="bnav-btn" onclick="goAdd()">
+    <div class="bnav-btn " onclick="goAdd()">
       <div class="bnav-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg></div>
       <div class="bnav-lbl">신규등록</div>
     </div>
@@ -266,8 +268,8 @@
     </div>
   </div>
 
-    <div class="bnav">
-    <div class="bnav-btn" onclick="goHome()">
+        <div class="bnav">
+    <div class="bnav-btn " onclick="goHome()">
       <div class="bnav-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>
       <div class="bnav-lbl">홈</div>
     </div>
@@ -275,7 +277,7 @@
       <div class="bnav-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg></div>
       <div class="bnav-lbl">신규등록</div>
     </div>
-    <div class="bnav-btn" onclick="goManage()">
+    <div class="bnav-btn " onclick="goManage()">
       <div class="bnav-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><circle cx="12" cy="13" r="2"/><path d="M12 15v3"/></svg></div>
       <div class="bnav-lbl">차량관리</div>
     </div>
@@ -371,6 +373,398 @@
     <button class="rm-confirm" style="width:100%;background:linear-gradient(135deg,#dc2626,#f87171);box-shadow:0 4px 14px rgba(220,38,38,.3);" onclick="closeBadwordModal()">
       확인
     </button>
+  </div>
+</div>
+
+<!-- 로그인/회원가입 모달 -->
+<div class="signup-modal" id="signup-modal">
+  <div class="signup-bg" onclick="closeSignupModal()"></div>
+  <div class="signup-panel" id="signup-panel-wrap">
+    <div class="signup-handle"></div>
+    <div class="signup-close-row">
+      <div class="signup-close" onclick="closeSignupModal()">✕</div>
+    </div>
+
+    <!-- ── 로그인 화면 ── -->
+    <div class="signup-body" id="panel-login">
+      <!-- 로고 -->
+      <div class="auth-logo"><em>출세</em>했다</div>
+      <div class="auth-tagline">로그인하고 나만의<br>차량관리를 시작하세요</div>
+
+
+      <!-- 이메일 -->
+      <div style="margin:0 18px 16px;">
+        <label style="display:block;font-size:14px;font-weight:700;color:#1a1d2e;margin-bottom:8px;">이메일</label>
+        <input id="li-email" type="email" placeholder="이메일 주소 입력" inputmode="email"
+          style="width:100%;height:52px;padding:0 16px;box-sizing:border-box;background:#f0f2f7;border:1.5px solid #e2e8f0;border-radius:12px;font-size:15px;color:#1a1d2e;font-family:'Noto Sans KR',sans-serif;outline:none;">
+      </div>
+
+      <!-- 비밀번호 -->
+      <div style="margin:0 18px 16px;">
+        <label style="display:block;font-size:14px;font-weight:700;color:#1a1d2e;margin-bottom:8px;">비밀번호</label>
+        <input id="li-pw" type="password" placeholder="비밀번호 입력"
+          style="width:100%;height:52px;padding:0 16px;box-sizing:border-box;background:#f0f2f7;border:1.5px solid #e2e8f0;border-radius:12px;font-size:15px;color:#1a1d2e;font-family:'Noto Sans KR',sans-serif;outline:none;">
+      </div>
+
+      <!-- 로그인 유지 + 찾기 -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:0 18px 20px;">
+        <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:#64748b;cursor:pointer;">
+          <input type="checkbox" id="li-keep" style="width:16px;height:16px;accent-color:#2563eb;"> 로그인 유지
+        </label>
+        <span style="font-size:13px;color:#64748b;cursor:pointer;text-decoration:underline;text-underline-offset:3px;">아이디·비밀번호 찾기</span>
+      </div>
+
+      <!-- 로그인 버튼 -->
+      <div style="margin:0 18px 0;">
+        <button onclick="submitLogin()"
+          style="width:100%;height:52px;box-sizing:border-box;background:#1a1d2e;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:800;font-family:'Noto Sans KR',sans-serif;cursor:pointer;">
+          로그인
+        </button>
+      </div>
+
+      <!-- 구분선 -->
+      <div class="signup-divider"><span>또는</span></div>
+
+      <!-- 소셜 아이콘 -->
+      <div class="social-icon-row">
+        <button class="social-icon-btn si-kakao" onclick="socialSignup('kakao')" title="카카오">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#3C1E1E"><path d="M12 3C6.477 3 2 6.477 2 10.8c0 2.7 1.636 5.08 4.118 6.51L5.2 21l4.5-2.7c.75.1 1.52.15 2.3.15 5.523 0 10-3.477 10-7.65S17.523 3 12 3z"/></svg>
+        </button>
+        <button class="social-icon-btn si-naver" onclick="socialSignup('naver')" title="네이버">
+          <span style="font-size:16px;font-weight:900;color:#fff;font-family:sans-serif;">N</span>
+        </button>
+        <button class="social-icon-btn si-google" onclick="socialSignup('google')" title="구글">
+          <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        </button>
+      </div>
+
+      <!-- 회원가입 링크 -->
+      <div class="auth-signup-link">
+        아직 출세했다 회원이 아니신가요?
+        <span onclick="showSignupPanel()">회원가입</span>
+      </div>
+    </div>
+
+    <!-- ── 회원가입 화면 ── -->
+    <div class="signup-body" id="panel-register" style="display:none;">
+      <div class="auth-logo"><em>출세</em>했다</div>
+      <div class="auth-tagline">회원가입하고<br>차량관리를 시작하세요</div>
+
+      <!-- 이메일 -->
+      <div style="margin:0 18px 16px;">
+        <label style="display:block;font-size:14px;font-weight:700;color:#1a1d2e;margin-bottom:8px;">이메일 <span style="color:#dc2626;">*</span></label>
+        <input id="su-email" type="email" placeholder="이메일 주소 입력" inputmode="email"
+          style="width:100%;height:52px;padding:0 16px;box-sizing:border-box;background:#f0f2f7;border:1.5px solid #e2e8f0;border-radius:12px;font-size:15px;color:#1a1d2e;font-family:'Noto Sans KR',sans-serif;outline:none;">
+      </div>
+
+      <!-- 비밀번호 -->
+      <div style="margin:0 18px 16px;">
+        <label style="display:block;font-size:14px;font-weight:700;color:#1a1d2e;margin-bottom:8px;">비밀번호 <span style="color:#dc2626;">*</span></label>
+        <input id="su-pw" type="password" placeholder="8자 이상 입력"
+          style="width:100%;height:52px;padding:0 16px;box-sizing:border-box;background:#f0f2f7;border:1.5px solid #e2e8f0;border-radius:12px;font-size:15px;color:#1a1d2e;font-family:'Noto Sans KR',sans-serif;outline:none;">
+      </div>
+
+      <!-- 비밀번호 확인 -->
+      <div style="margin:0 18px 20px;">
+        <label style="display:block;font-size:14px;font-weight:700;color:#1a1d2e;margin-bottom:8px;">비밀번호 확인 <span style="color:#dc2626;">*</span></label>
+        <input id="su-pw2" type="password" placeholder="비밀번호 재입력"
+          style="width:100%;height:52px;padding:0 16px;box-sizing:border-box;background:#f0f2f7;border:1.5px solid #e2e8f0;border-radius:12px;font-size:15px;color:#1a1d2e;font-family:'Noto Sans KR',sans-serif;outline:none;">
+      </div>
+
+      <!-- 가입 버튼 -->
+      <div style="margin:0 18px 0;">
+        <button onclick="submitSignup()"
+          style="width:100%;height:52px;box-sizing:border-box;background:#1a1d2e;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:800;font-family:'Noto Sans KR',sans-serif;cursor:pointer;">
+          회원가입 완료
+        </button>
+      </div>
+
+      <!-- 구분선 -->
+      <div class="signup-divider"><span>또는 소셜 3초 회원가입</span></div>
+
+      <!-- 소셜 아이콘 -->
+      <div class="social-icon-row">
+        <button class="social-icon-btn si-kakao" onclick="socialSignup('kakao')" title="카카오">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#3C1E1E"><path d="M12 3C6.477 3 2 6.477 2 10.8c0 2.7 1.636 5.08 4.118 6.51L5.2 21l4.5-2.7c.75.1 1.52.15 2.3.15 5.523 0 10-3.477 10-7.65S17.523 3 12 3z"/></svg>
+        </button>
+        <button class="social-icon-btn si-naver" onclick="socialSignup('naver')" title="네이버">
+          <span style="font-size:16px;font-weight:900;color:#fff;font-family:sans-serif;">N</span>
+        </button>
+        <button class="social-icon-btn si-google" onclick="socialSignup('google')" title="구글">
+          <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        </button>
+      </div>
+
+      <div class="auth-signup-link">
+        이미 회원이신가요?
+        <span onclick="showLoginPanel()">로그인</span>
+      </div>
+
+      <div style="text-align:center;font-size:11px;color:var(--dim);margin-top:8px;line-height:1.6;">
+        가입 시 <span style="color:var(--blue);font-weight:600;">서비스 이용약관</span> 및 <span style="color:var(--blue);font-weight:600;">개인정보처리방침</span>에 동의하게 됩니다.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 서비스 소개 모달 -->
+<div class="service-modal" id="service-modal">
+  <div class="service-inner">
+
+    <!-- 헤더 -->
+    <div class="svc-topbar">
+      <div class="svc-logo"><em>출세</em>했다</div>
+      <div class="svc-close" onclick="closeServiceModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+
+    <div class="svc-scroll">
+
+      <!-- 히어로 -->
+      <div class="svc-hero">
+        <div class="svc-hero-tag">출장세차 전문 관리 플랫폼</div>
+        <h1 class="svc-hero-title">세차는 기술이 아니라<br>관리에서 매출이<br>결정됩니다</h1>
+        <p class="svc-hero-sub">놓치는 세차 없이, 잃는 고객 없이</p>
+      </div>
+
+      <!-- 고객 가치 -->
+      <div class="svc-section">
+        <p class="svc-quote">"고객은 세차 결과보다<br><strong>'관리받고 있다'</strong>는 경험에<br>다시 결제합니다"</p>
+      </div>
+
+      <!-- 문제점 -->
+      <div class="svc-section">
+        <div class="svc-section-title">이런 문제로 막히고 있지 않으신가요?</div>
+        <div class="svc-problem-list">
+          <div class="svc-problem-item">
+            <div class="svc-problem-dot"></div>
+            <span>고객 차량 누락 → 클레임 발생</span>
+          </div>
+          <div class="svc-problem-item">
+            <div class="svc-problem-dot"></div>
+            <span>세차 완료 후 고객 전달 누락</span>
+          </div>
+          <div class="svc-problem-item">
+            <div class="svc-problem-dot"></div>
+            <span>직원·알바 간 커뮤니케이션 혼선</span>
+          </div>
+          <div class="svc-problem-item">
+            <div class="svc-problem-dot"></div>
+            <span>차량 상태 기록 없음 → 재방문 유도 어려움</span>
+          </div>
+          <div class="svc-problem-item">
+            <div class="svc-problem-dot"></div>
+            <span>대표 혼자 모든 차량을 직접 체크</span>
+          </div>
+        </div>
+        <div class="svc-emphasis">열심히 일하지만, 체계 없이 운영되는 구조</div>
+      </div>
+
+      <!-- 솔루션 -->
+      <div class="svc-section svc-section-blue">
+        <div class="svc-section-title" style="color:#fff;">이 플랫폼 하나로<br>모든 관리가 자동화됩니다</div>
+        <div class="svc-feature-list">
+          <div class="svc-feature-item">
+            <div class="svc-feature-check">✓</div>
+            <span>차량 등록 → 고객 DB 자동 관리</span>
+          </div>
+          <div class="svc-feature-item">
+            <div class="svc-feature-check">✓</div>
+            <span>세차 완료 시 사진 업로드 → 고객 자동 문자 발송</span>
+          </div>
+          <div class="svc-feature-item">
+            <div class="svc-feature-check">✓</div>
+            <span>작업 이력 저장 → 재방문 유도 및 신뢰 상승</span>
+          </div>
+          <div class="svc-feature-item">
+            <div class="svc-feature-check">✓</div>
+            <span>직원·알바 작업 공유 → 업무 충돌 최소화</span>
+          </div>
+          <div class="svc-feature-item">
+            <div class="svc-feature-check">✓</div>
+            <span>누락 차량 자동 체크 → 클레임 사전 방지</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 사용 전/후 비교 -->
+      <div class="svc-section">
+        <div class="svc-section-title">사용 전 / 사용 후</div>
+        <div class="svc-compare">
+          <div class="svc-compare-col svc-before">
+            <div class="svc-compare-head">사용 전</div>
+            <div class="svc-compare-item">차량 누락 발생</div>
+            <div class="svc-compare-item">고객 불만 증가</div>
+            <div class="svc-compare-item">직원 간 소통 문제</div>
+            <div class="svc-compare-item">대표가 모두 직접 확인</div>
+          </div>
+          <div class="svc-compare-divider">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="svc-compare-col svc-after">
+            <div class="svc-compare-head">사용 후</div>
+            <div class="svc-compare-item">차량 자동 관리 시스템</div>
+            <div class="svc-compare-item">세차 완료 즉시 알림</div>
+            <div class="svc-compare-item">팀 단위 협업 가능</div>
+            <div class="svc-compare-item">대표는 "관리"에 집중</div>
+          </div>
+        </div>
+        <div class="svc-transform">노동 중심 운영 → 시스템 중심 운영</div>
+      </div>
+
+      <!-- STEP -->
+      <div class="svc-section">
+        <div class="svc-section-title">서비스 이용 방법</div>
+        <p class="svc-step-sub">복잡한 설정 없이, 누구나 바로 사용 가능합니다</p>
+        <div class="svc-steps">
+          <div class="svc-step">
+            <div class="svc-step-num">01</div>
+            <div class="svc-step-text">
+              <div class="svc-step-title">차량 등록</div>
+              <div class="svc-step-desc">고객 정보 + 차량 정보 입력</div>
+            </div>
+          </div>
+          <div class="svc-step">
+            <div class="svc-step-num">02</div>
+            <div class="svc-step-text">
+              <div class="svc-step-title">세차 진행 후 사진 업로드</div>
+              <div class="svc-step-desc">작업 완료 기록 저장</div>
+            </div>
+          </div>
+          <div class="svc-step">
+            <div class="svc-step-num">03</div>
+            <div class="svc-step-text">
+              <div class="svc-step-title">고객 자동 완료 문자 발송</div>
+              <div class="svc-step-desc">신뢰도 및 재방문율 상승</div>
+            </div>
+          </div>
+          <div class="svc-step">
+            <div class="svc-step-num">04</div>
+            <div class="svc-step-text">
+              <div class="svc-step-title">작업 이력 저장</div>
+              <div class="svc-step-desc">재방문 및 고객 관리 활용</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="svc-cta">
+        <p class="svc-cta-text">고객은 '세차'보다<br>'관리받고 있다'는 느낌에 재결제합니다</p>
+        <p class="svc-cta-sub">이제 대표가 일일이 확인하지 않아도 되는 구조로 바꾸고<br>혼자가 아닌 시스템으로 사업을 운영하세요</p>
+        <button class="svc-cta-btn" onclick="closeServiceModal(); openSignupModal();">지금 시작하기</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 아파트 검색 모달 -->
+<div class="apt-search-modal" id="apt-search-modal">
+  <div class="apt-search-bg" onclick="closeAptSearchModal()"></div>
+  <div class="apt-search-panel">
+    <div class="apt-search-handle"></div>
+    <div class="apt-search-header">
+      <div>
+        <div class="apt-search-title">🏢 아파트 관리</div>
+        <div class="apt-search-sub">전국 아파트를 검색하세요</div>
+      </div>
+      <div class="apt-search-close" onclick="closeAptSearchModal()">✕</div>
+    </div>
+
+    <!-- 검색창 -->
+    <div class="apt-search-body">
+      <div class="apt-search-row">
+        <input class="apt-search-input" id="apt-keyword" type="text"
+          placeholder="아파트명 또는 주소 입력 (예: 중앙하이츠, 목동)"
+          oninput="onAptKeywordInput()"
+          onkeydown="if(event.key==='Enter') searchApartment()">
+        <button class="apt-search-btn" onclick="searchApartment()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+      </div>
+
+      <!-- 결과 목록 -->
+      <div id="apt-search-result" class="apt-result-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 사이드 메뉴 -->
+<div class="side-menu" id="side-menu">
+  <div class="side-bg" onclick="closeSideMenu()"></div>
+  <div class="side-panel">
+    <div class="side-header">
+      <div class="side-logo"><em>출세</em>했다</div>
+      <div class="side-close" onclick="closeSideMenu()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+
+    <div class="side-desc">출장세차 차량관리 플랫폼</div>
+
+    <nav class="side-nav">
+      <div class="side-nav-item" onclick="closeSideMenu(); openSignupModal();">
+        <div class="side-nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="side-nav-text">
+          <div class="side-nav-lbl">회원가입</div>
+          <div class="side-nav-sub">소셜 3초 가입 또는 일반 가입</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <div class="side-nav-item" onclick="closeSideMenu(); openServiceModal();">
+        <div class="side-nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="side-nav-text">
+          <div class="side-nav-lbl">서비스 소개</div>
+          <div class="side-nav-sub">출세했다 기능 안내</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <!-- 내 차량관리 (토글) -->
+      <div class="side-nav-item" onclick="toggleMycarMenu()">
+        <div class="side-nav-icon" style="background:rgba(37,99,235,.1);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><circle cx="12" cy="13" r="2"/><path d="M12 15v3"/></svg>
+        </div>
+        <div class="side-nav-text">
+          <div class="side-nav-lbl" style="color:var(--blue);">내 차량관리</div>
+        <div class="side-nav-sub">아파트 관리 · 신규등록</div>
+        </div>
+        <svg id="mycar-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" style="transition:transform .2s;"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <!-- 내 차량관리 서브 메뉴 -->
+      <div id="mycar-submenu" style="display:none;">
+        <div class="side-sub-item" onclick="openAptSearchModal(); closeSideMenu();">
+          <span class="side-sub-lbl"><span class="side-sub-num">1</span> 아파트 관리</span>
+        </div>
+        <div class="side-sub-item" onclick="goAdd(); closeSideMenu();">
+          <span class="side-sub-lbl"><span class="side-sub-num">2</span> 신규 차량 등록</span>
+        </div>
+      </div>
+
+      <div class="side-nav-item side-nav-pay" onclick="closeSideMenu()">
+        <div class="side-nav-icon" style="background:rgba(22,163,74,.1);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        </div>
+        <div class="side-nav-text">
+          <div class="side-nav-lbl" style="color:#16a34a;">결제하기</div>
+          <div class="side-nav-sub" id="sub-price-lbl">구독 플랜 선택</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </nav>
+
+    <div class="side-footer">
+      <div class="side-footer-txt">© 2025 출세했다. All rights reserved.</div>
+      <div class="side-footer-txt">출장세차 전문 차량관리 플랫폼</div>
+    </div>
   </div>
 </div>
 

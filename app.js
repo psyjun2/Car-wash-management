@@ -51,120 +51,21 @@ document.addEventListener('input', e => {
 });
 
 const DAYS=[
-  {key:'sun',name:'일',date:'26'},
-  {key:'mon',name:'월',date:'19'},
-  {key:'tue',name:'화',date:'19'},
-  {key:'wed',name:'수',date:'23'},
-  {key:'thu',name:'목',date:'18'},
+  {key:'mon',name:'월'},
+  {key:'tue',name:'화'},
+  {key:'wed',name:'수'},
+  {key:'thu',name:'목'},
+  {key:'fri',name:'금'},
+  {key:'sat',name:'토'},
+  {key:'sun',name:'일'},
 ];
 
-// schedule: 세차 예정 요일 배열 (이미지의 O 표시)
-const APTS=[
-  /* ─── 중앙하이츠 1~2 ─── */
-  {id:'ha12', name:'중앙하이츠 1~2', icon:'🏢',
-   memo:'청마루 7813 BMW GT 검정 → 28번기둥(106동밖) | Ray 0745/7974 → 주1회 보일때 세차',
-   cars:[
-    {num:'8785', car:'벤츠E',      col:'흰색',  loc:'B1',          sched:['mon','wed'],        note:'B1 고정'},
-    {num:'6453', car:'렉서스LS',   col:'검정',  loc:'B1',          sched:['sun'],               note:''},
-    {num:'8696', car:'그랜저',     col:'—',     loc:'B1',          sched:['mon'],               note:'8시'},
-    {num:'2451', car:'벤츠GLC',    col:'남색',  loc:'B2/B1',       sched:['mon'],               note:'7시 (가끔 픽업)'},
-    {num:'1710', car:'GV70',       col:'흰색',  loc:'B2/B3/B1',    sched:['tue'],               note:''},
-    {num:'1319', car:'벤츠E',      col:'청색',  loc:'W B3',        sched:['sun','wed'],         note:'필요시 문자, 8시 다시 나감'},
-    {num:'2763', car:'벤츠S',      col:'검정',  loc:'B4',          sched:['sun','tue'],         note:'부재시 익일'},
-    {num:'5225', car:'BMW X6',     col:'흰색',  loc:'B4',          sched:['sun','tue'],         note:'월2회, 풀주 내외부같이'},
-    {num:'4590', car:'아우디A6',   col:'흰색',  loc:'B5',          sched:['mon','wed'],         note:'거의고정, 내부요청시 유료'},
-    {num:'0894', car:'렉스턴 칸',  col:'빨강',  loc:'B5',          sched:[],                    note:'시간될때'},
-  ]},
-
-  /* ─── 중앙하이츠 3~4 ─── */
-  {id:'ha34', name:'중앙하이츠 3~4', icon:'🏢',
-   memo:'W (월) 1638 690원',
-   cars:[
-    {num:'9025', car:'그랜저(신형)', col:'검정', loc:'B1',           sched:['sun','tue','thu'],   note:'넷째주 문자하고 내부'},
-    {num:'5610', car:'익스플로러',   col:'검정', loc:'B1',           sched:['sun','tue','thu'],   note:'넷째주 문자하고 내부'},
-    {num:'2310', car:'렉서스',       col:'금색', loc:'B1',           sched:['sun','wed'],         note:'거의고정'},
-    {num:'2647', car:'G80(신형)',    col:'남색', loc:'B1',           sched:['sun','tue'],         note:'가끔 출장'},
-    {num:'3290', car:'그랜저(구형)', col:'검정', loc:'W B1',         sched:['sun','tue'],         note:'12시 or 외박'},
-    {num:'9177', car:'벤츠GLS',      col:'검정', loc:'B1',           sched:['wed'],               note:'거의고정'},
-    {num:'7406', car:'렉스턴',       col:'검정', loc:'W B1',         sched:['tue'],               note:'월2(2,4째주)'},
-    {num:'7609', car:'벤츠E',        col:'남희색',loc:'B1/B4',        sched:['tue'],               note:'거의고정, 스류어디스'},
-    {num:'9881', car:'G90',          col:'검정', loc:'B1/B4 와이퍼x',sched:['sun','mon','wed'],   note:'12시 or 외박'},
-    {num:'0672', car:'벤츠E',        col:'검정', loc:'B1',           sched:['wed'],               note:'내부는 해달라고 할때만'},
-    {num:'4631', car:'벤츠C',        col:'검정', loc:'B2/와이피x',   sched:['mon'],               note:'월2회 내부/10시'},
-    {num:'5811', car:'벤츠S',        col:'검정', loc:'B3/B4',        sched:['sun','tue'],         note:'월2회 내부/10시'},
-    {num:'5242', car:'레인지로버',   col:'검정', loc:'B4',           sched:['sun'],               note:'플랫폼 내부 문열림 확인'},
-    {num:'1642', car:'G80',          col:'—',    loc:'B4/B3',        sched:['mon'],               note:'플랫폼 내부 문열림 확인'},
-    {num:'0241', car:'BMW 1',        col:'청색', loc:'W B4/B3',      sched:['sun'],               note:'내부후 키→9025,5610 헬끼내부'},
-    {num:'5414', car:'벤츠EQE',      col:'검정', loc:'B4/B5',        sched:['sun','tue','thu'],   note:'넷째주 문자하고 내부'},
-    {num:'4709', car:'포르쉐',       col:'흰색', loc:'W.P B5',       sched:['sun'],               note:'월2(2,4째주), 이전 K7 1293'},
-    {num:'5625', car:'벤츠',         col:'—',    loc:'B5',           sched:['sun','tue','thu'],   note:'첫째주 내부'},
-    {num:'7700', car:'—',            col:'검정', loc:'B5',           sched:['sun','tue','thu'],   note:''},
-    {num:'8721', car:'G90',          col:'무광', loc:'B5',           sched:['sun','wed'],         note:''},
-    {num:'0946', car:'벤츠E',        col:'—',    loc:'W B5',         sched:['mon'],               note:''},
-    {num:'9946', car:'CLE',          col:'흰색', loc:'W B5',         sched:['sun'],               note:''},
-  ]},
-
-  /* ─── 블루밍 ─── */
-  {id:'blooming', name:'블루밍', icon:'🌸', memo:'',
-   cars:[
-    {num:'9304', car:'렉스턴(신형)', col:'흰색', loc:'W B2/B1 101동', sched:['sun','tue','thu'], note:'12시'},
-    {num:'1607', car:'렉스턴(구형)', col:'은색', loc:'W B2',          sched:['mon'],             note:'거의고정'},
-    {num:'7488', car:'벨토스',       col:'흰색', loc:'W B2',          sched:['mon','wed'],       note:'여행'},
-    {num:'1005', car:'카니발',       col:'흰색', loc:'W B2',          sched:['sun','wed'],       note:'여행'},
-    {num:'4836', car:'테슬라',       col:'회색', loc:'B2 보통가운데', sched:['mon'],             note:'부재시 출장'},
-    {num:'8254', car:'BMW X6',       col:'청색', loc:'P B2/B1 101동', sched:['mon'],             note:'부재시 출장'},
-    {num:'8615', car:'벤츠S',        col:'흰색', loc:'P B2 95기둥',   sched:['mon'],             note:'거의고정, 늦으면 10시30'},
-    {num:'9140', car:'카니발',       col:'검정', loc:'W B1 105동',    sched:['tue'],             note:'이전번호 6704'},
-    {num:'1732', car:'신형그랜저',   col:'흰색', loc:'P B1/와이피o',  sched:['mon'],             note:'거의고정, 늦으면 10시30'},
-    {num:'7034', car:'쏘렌토',       col:'은색', loc:'B1/와이피o',    sched:['wed'],             note:''},
-  ]},
-
-  /* ─── 고척푸르지오 ─── */
-  {id:'gocheok', name:'고척푸르지오', icon:'🏗️', memo:'1011 GLC → O O',
-   cars:[
-    {num:'6997', car:'벤츠E(구형)', col:'검정', loc:'위2층 위쪽바깔',  sched:['sun','tue'],   note:'고정, 와이피o'},
-    {num:'6171', car:'QM6',         col:'은색', loc:'뒷윗층',          sched:['mon','wed'],   note:'출장'},
-    {num:'0175', car:'K9',          col:'검정', loc:'뒷윗층 바깔',     sched:['sun','tue'],   note:'1달1회, 안오면 6997세차'},
-    {num:'2920', car:'—',           col:'은색', loc:'위2층/6997근처',  sched:['mon','wed'],   note:'거의고정 12~12시30'},
-    {num:'2581', car:'렉서스',      col:'금색', loc:'위2층',           sched:['sun','tue'],   note:'고정'},
-    {num:'5910', car:'벤츠S',       col:'검정', loc:'위2층',           sched:['mon','wed'],   note:'거의고정'},
-    {num:'8319', car:'G90',         col:'검정', loc:'W 위2층 아래바깔',sched:['sun','tue'],   note:'2477없으면 안들어옴'},
-    {num:'2477', car:'벤츠E',       col:'검정', loc:'위2층 아래바깔',  sched:['mon','wed'],   note:'고정, 늦으면 12시'},
-  ]},
-
-  /* ─── 고척아이파크MD ─── */
-  {id:'ipark', name:'고척아이파크MD', icon:'🏙️', memo:'',
-   cars:[
-    {num:'8741', car:'벤츠E', col:'청색', loc:'4동 102동1~2', sched:['mon'], note:'23기둥근처, 고정'},
-    {num:'6600', car:'G90',   col:'—',    loc:'—',            sched:['mon'], note:'103동 1-28층이상'},
-  ]},
-
-  /* ─── 목동파크자이 ─── */
-  {id:'mokdong', name:'목동파크자이', icon:'🌲', memo:'',
-   cars:[
-    {num:'12기당', car:'벤츠S', col:'검정', loc:'B1 107동 3~4', sched:['sun','tue','thu'], note:'타이어광택x'},
-    {num:'4689',   car:'G70',   col:'검정', loc:'B1 103동 3~4', sched:['sun','tue','thu'], note:'타이어광택x'},
-  ]},
-
-  /* ─── 신구로자이 ─── */
-  {id:'guro', name:'신구로자이', icon:'🏠', memo:'목동동로 339 인근',
-   cars:[
-    {num:'7506', car:'포르쉐', col:'회색', loc:'신구로자이', sched:['tue'], note:'구로구 중앙로 134 위'},
-  ]},
-
-  /* ─── 신정롯데캐슬 ─── */
-  {id:'lotte', name:'신정롯데캐슬', icon:'🏰', memo:'신록로 24 X5 → 같은날?',
-   cars:[
-    {num:'1709', car:'레이',     col:'흰색', loc:'신정롯데캐슬', sched:['mon'], note:'신록로 12길 22'},
-    {num:'—',    car:'벤츠OLS',  col:'검정', loc:'—',            sched:['mon'], note:''},
-    {num:'5246', car:'아우디A3', col:'검정', loc:'—',            sched:['mon'], note:''},
-  ]},
-];
+const APTS=[];
 
 /* ════════════════════════════════════
    STATE
 ════════════════════════════════════ */
-let activeDay = 'sun';
+let activeDay = 'mon';
 let curApt    = null;
 
 // 완료 상태: "w5_{aptId}_{ci}_{dayKey}" = '1'
@@ -361,16 +262,31 @@ function renderHome(){
 
 function buildDayTabs(){
   const el=document.getElementById('day-tabs');
+  const today = new Date();
+  const todayDay = today.getDay(); // 0=일, 1=월 ... 6=토
+
+  // 이번 주 월요일 기준으로 각 요일 날짜 계산
+  const dayKeyMap = {mon:1,tue:2,wed:3,thu:4,fri:5,sat:6,sun:0};
+  const mondayOffset = todayDay === 0 ? -6 : 1 - todayDay;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + mondayOffset);
+
   el.innerHTML=DAYS.map(d=>{
-    // 해당 요일에 보여야 할 차량 수 (원래 sched + 이월)
     let total=0;
     APTS.forEach(apt=>apt.cars.forEach((_,ci)=>{
       if(shouldShowOnDay(apt,ci,d.key)) total++;
     }));
+
+    // 해당 요일 날짜 계산
+    const offset = dayKeyMap[d.key] === 0 ? 6 : dayKeyMap[d.key] - 1;
+    const dayDate = new Date(monday);
+    dayDate.setDate(monday.getDate() + offset);
+    const dateStr = `${dayDate.getMonth()+1}/${dayDate.getDate()}`;
+
     return `
     <div class="dt${d.key===activeDay?' on':''}" data-day="${d.key}">
       <span class="dn">${d.name}요일</span>
-      <span class="dc">${total}</span>
+      <span class="dc" style="font-size:13px;font-weight:700;">${dateStr}</span>
     </div>`;
   }).join('');
   el.querySelectorAll('.dt').forEach(b=>b.addEventListener('click',()=>{
@@ -1043,6 +959,229 @@ function closeSuccessModal(){
   document.getElementById('success-modal').classList.remove('on');
 }
 
+
+/* ════════════════════════════════════
+   SIGNUP MODAL
+════════════════════════════════════ */
+function openSignupModal(){
+  document.getElementById('signup-modal').classList.add('on');
+  showLoginPanel(); // 항상 로그인 화면으로 시작
+}
+function closeSignupModal(){
+  document.getElementById('signup-modal').classList.remove('on');
+}
+function showLoginPanel(){
+  document.getElementById('panel-login').style.display='';
+  document.getElementById('panel-register').style.display='none';
+}
+function showSignupPanel(){
+  document.getElementById('panel-login').style.display='none';
+  document.getElementById('panel-register').style.display='';
+}
+function toggleNormalSignup(){
+  const panel = document.getElementById('normal-signup-panel');
+  const arrow = document.getElementById('normal-signup-arrow');
+  if(!panel||!arrow) return;
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : '';
+  arrow.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+function submitLogin(){
+  const email = document.getElementById('li-email')?.value.trim();
+  const pw    = document.getElementById('li-pw')?.value;
+  if(!email){ showToast('⚠️ 이메일을 입력하세요'); return; }
+  if(!pw)   { showToast('⚠️ 비밀번호를 입력하세요'); return; }
+  closeSignupModal();
+  showToast('✅ 로그인되었습니다');
+}
+function socialSignup(provider){
+  const names={naver:'네이버',kakao:'카카오',google:'구글'};
+  closeSignupModal();
+  showToast(`${names[provider]} 소셜 회원가입 준비 중입니다`);
+}
+function sendVerifyCode(){
+  const phone=document.getElementById('su-phone').value.trim();
+  if(!phone){ showToast('⚠️ 핸드폰 번호를 입력하세요'); return; }
+  document.getElementById('su-code-row').style.display='';
+  showToast('📱 인증번호를 발송했습니다');
+}
+function submitSignup(){
+  const email= document.getElementById('su-email')?.value.trim();
+  const pw   = document.getElementById('su-pw')?.value;
+  const pw2  = document.getElementById('su-pw2')?.value;
+  if(!email){ showToast('⚠️ 이메일을 입력하세요'); return; }
+  if(!email.includes('@')){ showToast('⚠️ 올바른 이메일 형식을 입력하세요'); return; }
+  if(!pw||pw.length<8){ showToast('⚠️ 비밀번호는 8자 이상이어야 합니다'); return; }
+  if(pw!==pw2){ showToast('⚠️ 비밀번호가 일치하지 않습니다'); return; }
+  closeSignupModal();
+  showToast('🎉 회원가입이 완료되었습니다!');
+}
+
+/* ════════════════════════════════════
+   아파트 검색 모달
+════════════════════════════════════ */
+function openAptSearchModal(){
+  document.getElementById('apt-search-modal').classList.add('on');
+  document.getElementById('apt-keyword').value = '';
+  document.getElementById('apt-search-result').innerHTML = `
+    <div class="apt-result-empty">
+      <div class="arei">🏢</div>
+      아파트명 또는 지역을 입력하세요
+    </div>`;
+  setTimeout(()=>document.getElementById('apt-keyword').focus(), 300);
+}
+
+function closeAptSearchModal(){
+  document.getElementById('apt-search-modal').classList.remove('on');
+}
+
+let _aptSearchTimer = null;
+function onAptKeywordInput(){
+  clearTimeout(_aptSearchTimer);
+  _aptSearchTimer = setTimeout(searchApartment, 300);
+}
+
+// 전국 아파트 샘플 데이터
+const APT_DB = [
+  // 서울 강남구
+  {name:'타워팰리스', addr:'서울 강남구 도곡동'},
+  {name:'은마아파트', addr:'서울 강남구 대치동'},
+  {name:'래미안대치팰리스', addr:'서울 강남구 대치동'},
+  {name:'아이파크', addr:'서울 강남구 삼성동'},
+  {name:'현대아이파크', addr:'서울 강남구 압구정동'},
+  // 서울 서초구
+  {name:'래미안퍼스티지', addr:'서울 서초구 반포동'},
+  {name:'반포자이', addr:'서울 서초구 반포동'},
+  {name:'아크로리버파크', addr:'서울 서초구 반포동'},
+  {name:'래미안서초에스티지S', addr:'서울 서초구 서초동'},
+  // 서울 송파구
+  {name:'헬리오시티', addr:'서울 송파구 가락동'},
+  {name:'잠실주공', addr:'서울 송파구 잠실동'},
+  {name:'롯데캐슬골드', addr:'서울 송파구 신천동'},
+  {name:'파크리오', addr:'서울 송파구 신천동'},
+  // 서울 마포구
+  {name:'마포래미안푸르지오', addr:'서울 마포구 아현동'},
+  {name:'공덕자이', addr:'서울 마포구 공덕동'},
+  // 서울 양천구
+  {name:'목동파크자이', addr:'서울 양천구 목동'},
+  {name:'목동신시가지아파트', addr:'서울 양천구 목동'},
+  // 서울 강동구
+  {name:'고덕래미안힐스테이트', addr:'서울 강동구 고덕동'},
+  {name:'올림픽파크포레온', addr:'서울 강동구 둔촌동'},
+  // 서울 은평구
+  {name:'DMC파크뷰자이', addr:'서울 은평구 수색동'},
+  {name:'녹번역e편한세상', addr:'서울 은평구 녹번동'},
+  // 서울 구로구
+  {name:'신구로자이', addr:'서울 구로구 개봉동'},
+  {name:'구로자이', addr:'서울 구로구 구로동'},
+  // 서울 영등포구
+  {name:'여의도자이', addr:'서울 영등포구 여의도동'},
+  {name:'여의도파크원', addr:'서울 영등포구 여의도동'},
+  // 경기 성남
+  {name:'판교알파돔시티', addr:'경기 성남시 분당구 삼평동'},
+  {name:'분당파크뷰', addr:'경기 성남시 분당구 정자동'},
+  {name:'중앙하이츠', addr:'경기 성남시 분당구 야탑동'},
+  {name:'위례신도시중앙하이츠', addr:'경기 성남시 수정구 위례동'},
+  // 경기 수원
+  {name:'광교아이파크', addr:'경기 수원시 영통구 이의동'},
+  {name:'광교자연앤힐스테이트', addr:'경기 수원시 영통구 하동'},
+  {name:'고척아이파크MD', addr:'경기 수원시 권선구 고색동'},
+  // 경기 화성
+  {name:'동탄역롯데캐슬', addr:'경기 화성시 동탄면'},
+  {name:'동탄파크자이', addr:'경기 화성시 반송동'},
+  // 경기 고양
+  {name:'일산자이', addr:'경기 고양시 일산동구 마두동'},
+  {name:'킨텍스꿈에그린', addr:'경기 고양시 일산서구 대화동'},
+  // 경기 하남
+  {name:'미사강변도시아파트', addr:'경기 하남시 망월동'},
+  {name:'미사역파라곤', addr:'경기 하남시 망월동'},
+  // 인천
+  {name:'송도더샵퍼스트파크', addr:'인천 연수구 송도동'},
+  {name:'청라한양수자인레이크블루', addr:'인천 서구 청라동'},
+  {name:'검단신도시푸르지오', addr:'인천 서구 불로동'},
+  // 부산
+  {name:'해운대두산위브더제니스', addr:'부산 해운대구 우동'},
+  {name:'마린시티자이', addr:'부산 해운대구 중동'},
+  {name:'래미안장전', addr:'부산 금정구 장전동'},
+  // 대구
+  {name:'수성SK뷰', addr:'대구 수성구 범어동'},
+  {name:'대구황금롯데캐슬', addr:'대구 수성구 황금동'},
+  // 광주
+  {name:'첨단롯데캐슬', addr:'광주 북구 첨단동'},
+  {name:'봉선자이', addr:'광주 남구 봉선동'},
+  // 대전
+  {name:'도안리슈빌', addr:'대전 서구 도안동'},
+  {name:'둔산자이', addr:'대전 서구 둔산동'},
+  // 세종
+  {name:'세종한신더휴', addr:'세종특별자치시 나성동'},
+  {name:'세종포레자이', addr:'세종특별자치시 보람동'},
+  // 울산
+  {name:'문수자이', addr:'울산 남구 문수로'},
+  {name:'울산달동푸르지오', addr:'울산 남구 달동'},
+  // 등록된 아파트도 포함
+  ...APTS.map(a=>({name:a.name, addr:'등록된 아파트'})),
+];
+
+function searchApartment(){
+  const keyword = document.getElementById('apt-keyword').value.trim();
+  const resultEl = document.getElementById('apt-search-result');
+
+  if(!keyword){
+    resultEl.innerHTML = `<div class="apt-result-empty"><div class="arei">🏢</div>아파트명 또는 지역을 입력하세요</div>`;
+    return;
+  }
+
+  const kw = keyword.toLowerCase();
+  const filtered = APT_DB.filter(a =>
+    a.name.toLowerCase().includes(kw) ||
+    a.addr.toLowerCase().includes(kw)
+  );
+
+  if(filtered.length === 0){
+    resultEl.innerHTML = `<div class="apt-result-empty"><div class="arei">😔</div>"${keyword}" 검색 결과가 없습니다<br><span style="font-size:12px;color:var(--dim);margin-top:6px;display:block;">다른 키워드로 검색해보세요</span></div>`;
+    return;
+  }
+
+  resultEl.innerHTML = filtered.map(a => `
+    <div class="apt-result-card" onclick="selectApartment('${a.name.replace(/'/g,"\\'")}', '${a.addr.replace(/'/g,"\\'")}')">
+      <div class="apt-result-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/>
+        </svg>
+      </div>
+      <div class="apt-result-info">
+        <div class="apt-result-name">${a.name}</div>
+        <div class="apt-result-addr">${a.addr}</div>
+      </div>
+      <span class="apt-result-tag">아파트</span>
+    </div>`).join('');
+}
+
+function selectApartment(name, addr){
+  closeAptSearchModal();
+  showToast(`🏢 ${name} 선택됨`);
+}
+
+
+function openSideMenu(){
+  document.getElementById('side-menu').classList.add('on');
+}
+function closeSideMenu(){
+  document.getElementById('side-menu').classList.remove('on');
+}
+function openServiceModal(){
+  document.getElementById('service-modal').classList.add('on');
+}
+function closeServiceModal(){
+  document.getElementById('service-modal').classList.remove('on');
+}
+function toggleMycarMenu(){
+  const sub   = document.getElementById('mycar-submenu');
+  const arrow = document.getElementById('mycar-arrow');
+  const isOpen = sub.style.display !== 'none';
+  sub.style.display   = isOpen ? 'none' : '';
+  arrow.style.transform = isOpen ? '' : 'rotate(90deg)';
+}
 
 /* ════════════════════════════════════
    BADWORD MODAL
