@@ -1171,6 +1171,8 @@ function closeSideMenu(){
 }
 function openServiceModal(){
   document.getElementById('service-modal').classList.add('on');
+  const scroll = document.querySelector('#service-modal .svc-scroll');
+  if(scroll) scroll.scrollTop = 0;
 }
 function closeServiceModal(){
   document.getElementById('service-modal').classList.remove('on');
