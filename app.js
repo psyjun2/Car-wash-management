@@ -167,8 +167,12 @@ function goAdd(){
   // 아파트 셀렉트 채우기
   const sel=document.getElementById('add-apt2');
   if(sel){
-    sel.innerHTML='<option value="">아파트를 선택하세요</option>'
-      +APTS.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+    if(!APTS.length){
+      sel.innerHTML='<option value="">먼저 아파트를 등록해주세요</option>';
+    } else {
+      sel.innerHTML='<option value="">아파트를 선택하세요</option>'
+        +APTS.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+    }
   }
   // 입력값 초기화
   ['add-num2','add-car2','add-loc2','add-note2'].forEach(id=>{
@@ -249,6 +253,8 @@ function confirmAddCar(){
 
   showSuccessModal({aptName:apt.name, num, car, loc, col, sched});
   renderHome();
+  renderMycarDayList();
+  renderMycarAptList();
 }
 
 /* ════════════════════════════════════
@@ -1043,6 +1049,13 @@ function onAptKeywordInput(){
 
 // 전국 아파트 샘플 데이터
 const APT_DB = [
+  // 한마을아파트
+  {name:'한마을아파트', addr:'서울 강남구 개포동'},
+  {name:'한마을아파트', addr:'경기 성남시 분당구 야탑동'},
+  {name:'한마을아파트', addr:'경기 용인시 수지구 죽전동'},
+  {name:'한마을아파트', addr:'경기 수원시 영통구 망포동'},
+  {name:'한마을아파트', addr:'인천 부평구 부평동'},
+  {name:'한마을아파트', addr:'부산 해운대구 우동'},
   // 서울 강남구
   {name:'타워팰리스', addr:'서울 강남구 도곡동'},
   {name:'은마아파트', addr:'서울 강남구 대치동'},
@@ -1162,6 +1175,103 @@ function selectApartment(name, addr){
   showToast(`🏢 ${name} 선택됨`);
 }
 
+function goAptManage(){
+  showPage('pg-apt');
+  document.getElementById('apt-keyword-hero').value = '';
+  document.getElementById('apt-search-result-hero').innerHTML = '';
+  renderRegisteredApts();
+}
+
+/* 아파트 검색 (로컬 DB) */
+let _aptHeroTimer = null;
+function onAptKeywordInputHero(){
+  clearTimeout(_aptHeroTimer);
+  _aptHeroTimer = setTimeout(searchApartmentHero, 300);
+}
+
+function searchApartmentHero(){
+  const keyword = document.getElementById('apt-keyword-hero').value.trim();
+  const resultEl = document.getElementById('apt-search-result-hero');
+  if(!keyword){ resultEl.innerHTML = ''; return; }
+
+  const kl = keyword.toLowerCase();
+  const filtered = APT_DB.filter(a =>
+    a.name.toLowerCase().includes(kl) || a.addr.toLowerCase().includes(kl)
+  );
+
+  if(!filtered.length){
+    resultEl.innerHTML = `<div style="text-align:center;padding:16px;font-size:13px;color:var(--muted);">"${keyword}" 검색 결과가 없습니다</div>`;
+    return;
+  }
+  renderAptSearchResults(filtered);
+}
+
+function renderAptSearchResults(items){
+  const resultEl = document.getElementById('apt-search-result-hero');
+  resultEl.innerHTML = items.map(a => `
+    <div class="apt-result-card">
+      <div class="apt-result-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      </div>
+      <div class="apt-result-info">
+        <div class="apt-result-name">${a.name}</div>
+        <div class="apt-result-addr">${a.addr || ''}</div>
+      </div>
+      <button class="apt-add-btn" onclick="addApartment('${(a.name||'').replace(/'/g,"\\'")}','${(a.addr||'').replace(/'/g,"\\'")}')">추가하기</button>
+    </div>`).join('');
+}
+
+function addApartment(name, addr){
+  // 이미 등록된 아파트인지 확인
+  const exists = APTS.find(a => a.name === name);
+  if(exists){ showToast('이미 등록된 아파트입니다'); return; }
+  // 새 아파트 추가
+  const id = 'apt_' + Date.now();
+  APTS.push({ id, name, addr, cars: [] });
+  saveApts();
+  // 검색창 초기화
+  document.getElementById('apt-keyword-hero').value = '';
+  document.getElementById('apt-search-result-hero').innerHTML = '';
+  renderRegisteredApts();
+  renderMycarAptList();
+  showToast(`🏢 ${name} 추가되었습니다`);
+}
+
+function renderRegisteredApts(){
+  const el = document.getElementById('apt-registered-list');
+  if(!el) return;
+  if(!APTS.length){
+    el.innerHTML = `<div class="apt-empty-state">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      <p>등록된 아파트가 없습니다<br>위에서 검색 후 추가해주세요</p>
+    </div>`;
+    return;
+  }
+  el.innerHTML = APTS.map(a => `
+    <div class="apt-reg-card">
+      <div class="apt-reg-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      </div>
+      <div class="apt-reg-info">
+        <div class="apt-reg-name">${a.name}</div>
+        <div class="apt-reg-addr">${a.addr || '주소 없음'} · 차량 ${a.cars.length}대</div>
+      </div>
+      <div class="apt-reg-del" onclick="removeApartment('${a.id}')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>`).join('');
+}
+
+function removeApartment(id){
+  const idx = APTS.findIndex(a => a.id === id);
+  if(idx < 0) return;
+  const name = APTS[idx].name;
+  APTS.splice(idx, 1);
+  saveApts();
+  renderRegisteredApts();
+  showToast(`${name} 삭제되었습니다`);
+}
+
 
 function openSideMenu(){
   document.getElementById('side-menu').classList.add('on');
@@ -1183,6 +1293,114 @@ function toggleMycarMenu(){
   const isOpen = sub.style.display !== 'none';
   sub.style.display   = isOpen ? 'none' : '';
   arrow.style.transform = isOpen ? '' : 'rotate(90deg)';
+}
+
+function openMycarMenu(){
+  showPage('pg-mycar');
+  renderMycarDayList();
+  renderMycarAptList();
+}
+
+function renderMycarAptList(){
+  const el = document.getElementById('mycar-apt-list');
+  if(!el) return;
+
+  if(!APTS.length){
+    el.innerHTML = `<div class="mycar-apt-empty">등록된 아파트가 없습니다<br>아파트 관리에서 추가해주세요</div>`;
+    return;
+  }
+
+  const dayNames = {mon:'월',tue:'화',wed:'수',thu:'목',fri:'금',sat:'토',sun:'일'};
+
+  el.innerHTML = APTS.map(apt => {
+    const carCount = apt.cars.length;
+    const colMap = {
+      '흰색':'#f5f5f5','검정':'#222','은색':'#c0c0c0','회색':'#808080',
+      '파랑':'#3a7ac0','빨강':'#c04040','남색':'#1a3060','청색':'#4080c0',
+      '갈색':'#7a5030','기타':'#888'
+    };
+    const cars = apt.cars.map((car, ci) => {
+      const col = localStorage.getItem(`color_${apt.id}_${ci}`) || colMap[car.col] || '#888';
+      const note = localStorage.getItem(`note_${apt.id}_${ci}`) || car.note || '';
+      const schedStr = (car.sched || []).map(d => dayNames[d] || d).join('·');
+      return `
+        <div class="mc-car-card">
+          <div class="mc-car-top">
+            <div class="mc-col-dot" style="background:${col};"></div>
+            <div class="mc-car-info">
+              <div class="mc-car-num">${car.num}</div>
+              <div class="mc-car-model">${car.car || '—'}</div>
+              ${car.loc ? `<div class="mc-car-loc">${car.loc}</div>` : ''}
+            </div>
+            ${schedStr ? `<div class="mc-car-sched">${schedStr}</div>` : ''}
+          </div>
+          ${note ? `<div class="mc-car-bottom">${note}</div>` : ''}
+        </div>`;
+    }).join('');
+
+    const emptyMsg = carCount === 0
+      ? `<div style="padding:16px;text-align:center;font-size:12px;color:var(--muted);">등록된 차량이 없습니다</div>`
+      : '';
+
+    return `
+      <div class="mycar-apt-card">
+        <div class="mycar-apt-header" onclick="toggleMycarApt('${apt.id}')">
+          <div class="mycar-apt-header-left">
+            <div class="mycar-apt-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+            </div>
+            <div>
+              <div class="mycar-apt-name">${apt.name}</div>
+              ${apt.addr ? `<div class="mycar-apt-addr">${apt.addr}</div>` : ''}
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            ${carCount > 0 ? `<div class="mycar-apt-badge">${carCount}</div>` : ''}
+            <div class="mycar-apt-arrow" id="arrow-${apt.id}">›</div>
+          </div>
+        </div>
+        <div class="mycar-apt-cars" id="cars-${apt.id}">
+          ${cars || emptyMsg}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleMycarApt(aptId){
+  const cars = document.getElementById(`cars-${aptId}`);
+  const arrow = document.getElementById(`arrow-${aptId}`);
+  if(!cars) return;
+  const isOpen = cars.classList.contains('open');
+  cars.classList.toggle('open', !isOpen);
+  if(arrow) arrow.classList.toggle('open', !isOpen);
+}
+
+function renderMycarDayList(){
+  const el = document.getElementById('mycar-day-list');
+  if(!el) return;
+
+  const dayNames = {mon:'월요일',tue:'화요일',wed:'수요일',thu:'목요일',fri:'금요일',sat:'토요일',sun:'일요일'};
+  const dayKeys  = ['mon','tue','wed','thu','fri','sat','sun'];
+
+  // 요일별 차량 집계
+  const dayMap = {};
+  dayKeys.forEach(k => dayMap[k] = []);
+  APTS.forEach(apt => {
+    apt.cars.forEach(car => {
+      (car.sched || []).forEach(d => {
+        if(dayMap[d]) dayMap[d].push({ num: car.num, model: car.car, apt: apt.name });
+      });
+    });
+  });
+
+  el.innerHTML = dayKeys.map(k => {
+    const cars = dayMap[k];
+    return `
+      <div class="mycar-day-row">
+        <div class="mycar-day-label">${dayNames[k].replace('요일','')}</div>
+        <div class="mycar-day-count-num">${cars.length > 0 ? cars.length : '·'}</div>
+      </div>`;
+  }).join('');
 }
 
 /* ════════════════════════════════════
@@ -1216,3 +1434,19 @@ function showToast(msg){
 loadApts();
 updateDate();
 renderHome();
+
+/* 광고 자동 슬라이드 */
+(function initAdSlider(){
+  let cur = 0;
+  const slides = document.querySelectorAll('.home-ad-slide');
+  const dots   = document.querySelectorAll('.ad-dot');
+  const inner  = document.querySelector('.home-ad-inner');
+  if(!slides.length) return;
+  function goSlide(n){
+    cur = n % slides.length;
+    inner.style.transform = `translateX(-${cur * 100}%)`;
+    dots.forEach((d,i) => d.classList.toggle('active', i === cur));
+  }
+  setInterval(() => goSlide(cur + 1), 3500);
+  dots.forEach((d, i) => d.addEventListener('click', () => goSlide(i)));
+})();

@@ -73,12 +73,12 @@ input, textarea {
   padding:4px 11px;border-radius:20px;
 }
 .tb-back{
-  display:flex;align-items:center;gap:4px;
-  font-size:15px;font-weight:700;color:var(--blue);
+  display:flex;align-items:center;gap:6px;
+  font-size:17px;font-weight:800;color:var(--blue);
   cursor:pointer;padding:8px 0;min-width:48px;
-  /* 충분한 터치 영역 */
   min-height:44px;
 }
+.tb-back svg{width:22px;height:22px;stroke-width:3;}
 .tb-center{font-size:15px;font-weight:800;color:var(--text);}
 .tb-spacer{width:52px;}
 
@@ -1706,4 +1706,388 @@ input, textarea {
 }
 .cmp-check{
   font-size:14px;font-weight:900;color:#16a34a;flex-shrink:0;
+}
+
+/* ── 내차관리 페이지 ── */
+.mycar-body{padding:20px 16px;}
+.mycar-top-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:12px;margin-bottom:20px;
+}
+.mycar-top-card{
+  background:var(--white);
+  border:1.5px solid var(--border);
+  border-radius:var(--r);
+  padding:24px 16px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  cursor:pointer;transition:all .18s;
+  -webkit-user-select:none;user-select:none;
+  text-align:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.04);
+}
+.mycar-top-card:active{transform:scale(.97);background:var(--bg);}
+.mycar-top-icon{
+  width:56px;height:56px;border-radius:16px;
+  background:rgba(37,99,235,.07);
+  border:1px solid rgba(37,99,235,.15);
+  display:flex;align-items:center;justify-content:center;
+}
+.mycar-top-label{
+  font-size:15px;font-weight:800;color:var(--text);
+}
+.mycar-top-sub{
+  font-size:11px;color:var(--muted);font-weight:500;
+}
+
+/* ══════════════════════════════
+   홈 · 광고 섹션
+══════════════════════════════ */
+.home-ad-section{
+  padding:16px 16px 0;
+}
+.home-ad-label{
+  font-size:10px;font-weight:700;color:var(--dim);
+  letter-spacing:1.5px;text-transform:uppercase;
+  margin-bottom:10px;
+}
+.home-ad-box{
+  position:relative;border-radius:var(--r);overflow:hidden;
+  height:200px;
+}
+.home-ad-inner{
+  display:flex;height:100%;
+  transition:transform .5s cubic-bezier(.4,0,.2,1);
+}
+.home-ad-slide{
+  flex-shrink:0;width:100%;height:100%;
+  padding:28px 24px;
+  display:flex;flex-direction:column;justify-content:center;gap:8px;
+}
+.ad-tag{
+  font-size:10px;font-weight:600;color:rgba(255,255,255,.5);
+  letter-spacing:1px;text-transform:uppercase;
+}
+.ad-title{
+  font-size:22px;font-weight:900;color:#fff;
+  line-height:1.3;letter-spacing:-.3px;
+}
+.ad-sub{
+  font-size:13px;color:rgba(255,255,255,.65);font-weight:400;
+}
+.ad-cta{
+  font-size:12px;font-weight:700;color:rgba(255,255,255,.8);
+  margin-top:4px;letter-spacing:.3px;
+}
+.home-ad-dots{
+  position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+  display:flex;gap:6px;
+}
+.ad-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:rgba(255,255,255,.35);transition:all .3s;
+}
+.ad-dot.active{background:#fff;width:18px;border-radius:3px;}
+
+/* ══════════════════════════════
+   홈 · 리뷰 롤링 섹션
+══════════════════════════════ */
+.home-review-section{
+  padding:20px 0 4px;
+}
+.home-review-label{
+  font-size:10px;font-weight:700;color:var(--dim);
+  letter-spacing:1.5px;text-transform:uppercase;
+  padding:0 16px;margin-bottom:12px;
+}
+.home-review-track-wrap{
+  overflow:hidden;
+  -webkit-mask:linear-gradient(to right,transparent,#000 10%,#000 90%,transparent);
+  mask:linear-gradient(to right,transparent,#000 10%,#000 90%,transparent);
+}
+.home-review-track{
+  display:flex;gap:10px;
+  width:max-content;
+  animation:reviewScroll 28s linear infinite;
+}
+.home-review-track:hover{animation-play-state:paused;}
+@keyframes reviewScroll{
+  0%{transform:translateX(0);}
+  100%{transform:translateX(-50%);}
+}
+.review-chip{
+  flex-shrink:0;
+  background:var(--white);border:1px solid var(--border);
+  border-radius:50px;
+  padding:10px 18px;
+  display:flex;align-items:center;gap:8px;
+  white-space:nowrap;
+}
+.rv-star{font-size:11px;color:#f59e0b;letter-spacing:-1px;}
+.rv-name{font-size:12px;font-weight:700;color:var(--text);}
+.rv-txt{font-size:12px;color:var(--muted);font-weight:400;}
+
+/* 차량관리 페이지 상단 초기화 카드 */
+.mg-reset-card{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border-color:rgba(220,38,38,.2);
+  background:rgba(220,38,38,.03);
+}
+.mg-reset-info{display:flex;align-items:center;gap:12px;flex:1;}
+.mg-reset-title{font-size:14px;font-weight:700;color:var(--text);}
+.mg-reset-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.mg-reset-btn{
+  height:38px;padding:0 18px;border-radius:var(--rs);
+  background:transparent;color:var(--red);
+  border:1.5px solid var(--red);
+  font-size:13px;font-weight:700;
+  font-family:'Noto Sans KR',sans-serif;
+  cursor:pointer;flex-shrink:0;transition:all .15s;
+}
+.mg-reset-btn:active{background:rgba(220,38,38,.08);}
+
+/* ── 아파트 관리 페이지 ── */
+.apt-manage-hero{
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  padding:16px 16px 0;
+  flex-shrink:0;
+}
+.apt-search-row-hero{
+  display:flex;gap:10px;margin-bottom:12px;
+}
+.apt-search-input-hero{
+  flex:1;height:52px;padding:0 16px;
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:var(--rs);font-size:15px;color:var(--text);
+  font-family:'Noto Sans KR',sans-serif;outline:none;
+  transition:border-color .18s;box-sizing:border-box;
+}
+.apt-search-input-hero:focus{border-color:var(--blue);}
+.apt-search-input-hero::placeholder{color:var(--dim);}
+.apt-search-btn-hero{
+  width:52px;height:52px;border-radius:var(--rs);
+  background:var(--blue);color:#fff;border:none;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;
+  box-shadow:0 4px 12px rgba(37,99,235,.25);
+  transition:all .15s;
+}
+.apt-search-btn-hero:active{transform:scale(.94);}
+.apt-result-hero-list{
+  max-height:220px;overflow-y:auto;
+  display:flex;flex-direction:column;gap:8px;
+  padding-bottom:12px;
+  scrollbar-width:none;
+}
+.apt-result-hero-list::-webkit-scrollbar{display:none;}
+
+/* 바디 */
+.apt-manage-body{padding:20px 16px 100px;}
+.apt-manage-section-title{
+  font-size:11px;font-weight:700;color:var(--dim);
+  letter-spacing:1.5px;text-transform:uppercase;
+  margin-bottom:14px;
+}
+.apt-registered-list{display:flex;flex-direction:column;gap:10px;}
+.apt-empty-state{
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  padding:48px 20px;
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--r);text-align:center;
+}
+.apt-empty-state p{font-size:13px;color:var(--muted);line-height:1.7;}
+
+/* 등록된 아파트 카드 */
+.apt-reg-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px;
+  display:flex;align-items:center;gap:14px;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+.apt-reg-icon{
+  width:42px;height:42px;border-radius:12px;
+  background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.12);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.apt-reg-info{flex:1;min-width:0;}
+.apt-reg-name{font-size:15px;font-weight:700;color:var(--text);}
+.apt-reg-addr{font-size:12px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.apt-reg-del{
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(220,38,38,.06);border:1px solid rgba(220,38,38,.15);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;color:var(--red);transition:all .15s;
+}
+.apt-reg-del:active{background:rgba(220,38,38,.15);}
+
+/* 카카오 API 키 입력 */
+.kakao-key-wrap{
+  background:rgba(37,99,235,.04);
+  border:1px solid rgba(37,99,235,.12);
+  border-radius:var(--rs);
+  padding:14px;
+  margin-bottom:12px;
+}
+.kakao-key-label{
+  font-size:12px;font-weight:700;color:var(--blue);
+  margin-bottom:10px;
+}
+.kakao-key-hint{
+  display:flex;align-items:center;gap:4px;
+  flex-wrap:wrap;margin-top:6px;
+}
+
+/* 내차량관리 · 요일별 차량 현황 */
+.mycar-schedule-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--r);padding:18px 16px;
+  margin-top:0;
+}
+.mycar-schedule-title{
+  font-size:13px;font-weight:800;color:var(--text);
+  margin-bottom:14px;letter-spacing:-.2px;
+}
+.mycar-day-list{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+}
+.mycar-day-row{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:10px 6px;
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--rs);
+  min-height:72px;
+}
+.mycar-day-label{
+  font-size:12px;font-weight:800;color:var(--blue);
+  flex-shrink:0;
+}
+.mycar-day-cars{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  width:100%;
+}
+.mycar-day-chip{
+  font-size:9px;font-weight:600;color:var(--text);
+  background:var(--white);border:1px solid var(--border2);
+  border-radius:4px;padding:2px 4px;
+  white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;max-width:100%;
+}
+.mycar-day-empty{
+  font-size:10px;color:var(--dim);font-weight:400;
+  text-align:center;
+}
+.mycar-day-count{
+  font-size:10px;font-weight:700;
+  color:var(--white);background:var(--blue);
+  border-radius:10px;padding:1px 6px;
+  line-height:1.5;
+}
+
+/* 검색 버튼 텍스트형 */
+.apt-search-btn-text{
+  width:auto;padding:0 18px;
+  font-size:14px;font-weight:700;
+  font-family:'Noto Sans KR',sans-serif;
+  letter-spacing:-.2px;
+}
+
+/* 추가하기 버튼 */
+.apt-add-btn{
+  height:34px;padding:0 14px;
+  background:var(--blue);color:#fff;border:none;
+  border-radius:var(--rs);
+  font-size:12px;font-weight:700;
+  font-family:'Noto Sans KR',sans-serif;
+  cursor:pointer;flex-shrink:0;
+  transition:all .15s;white-space:nowrap;
+}
+.apt-add-btn:active{opacity:.8;transform:scale(.96);}
+
+/* 아파트별 차량 관리 */
+.mycar-apt-empty{
+  text-align:center;padding:32px 16px;
+  font-size:13px;color:var(--muted);line-height:1.7;
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--rs);
+}
+.mycar-apt-card{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden;margin-bottom:12px;
+}
+.mycar-apt-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;cursor:pointer;
+  background:var(--white);
+  -webkit-user-select:none;user-select:none;
+  transition:background .15s;
+}
+.mycar-apt-header:active{background:var(--bg);}
+.mycar-apt-header-left{display:flex;align-items:center;gap:10px;}
+.mycar-apt-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.12);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.mycar-apt-name{font-size:15px;font-weight:700;color:var(--text);}
+.mycar-apt-addr{font-size:11px;color:var(--muted);margin-top:2px;}
+.mycar-apt-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--blue);color:#fff;
+  font-size:11px;font-weight:700;
+  min-width:22px;height:22px;border-radius:11px;padding:0 6px;
+  font-family:'JetBrains Mono',monospace;
+}
+.mycar-apt-arrow{
+  color:var(--muted);transition:transform .2s;font-size:12px;
+}
+.mycar-apt-arrow.open{transform:rotate(90deg);}
+.mycar-apt-cars{
+  padding:0 14px 14px;
+  display:none;flex-direction:column;gap:8px;
+}
+.mycar-apt-cars.open{display:flex;}
+
+/* 차량 카드 (mycar 버전) */
+.mc-car-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--rs);overflow:hidden;
+}
+.mc-car-top{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 14px;
+}
+.mc-col-dot{
+  width:22px;height:22px;border-radius:50%;
+  border:1.5px solid rgba(0,0,0,.1);flex-shrink:0;
+}
+.mc-car-info{flex:1;min-width:0;}
+.mc-car-num{font-size:15px;font-weight:800;color:var(--text);font-family:'JetBrains Mono',monospace;}
+.mc-car-model{font-size:12px;color:var(--muted);margin-top:2px;}
+.mc-car-loc{font-size:11px;color:var(--dim);margin-top:2px;}
+.mc-car-sched{
+  font-size:10px;font-weight:600;color:var(--blue);
+  background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.15);
+  border-radius:4px;padding:2px 7px;flex-shrink:0;
+}
+.mc-car-bottom{
+  padding:9px 14px 11px;
+  border-top:1px solid var(--border);
+  background:rgba(0,0,0,.01);
+  font-size:12px;color:var(--muted);font-weight:400;line-height:1.5;
+}
+
+/* 요일별 카운트 숫자 */
+.mycar-day-row{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:10px 4px;
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--rs);
+  min-height:60px;
+}
+.mycar-day-count-num{
+  font-size:16px;font-weight:800;color:#1a1d2e;
+  font-family:'JetBrains Mono',monospace;
+  line-height:1;
 }
