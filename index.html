@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>출세했다</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
 
@@ -21,7 +21,13 @@
   <div class="safe-t"></div>
   <div class="topbar">
     <div class="tb-logo">오늘도 <em>출세</em>했다</div>
-    <div class="hamburger-btn" onclick="goMenu()"><span></span><span></span><span></span></div>
+    <div class="tb-right-icons">
+      <div class="bell-btn" id="home-bell-btn" style="display:none;" onclick="goNotifications()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="bell-dot" id="home-bell-dot" style="display:none;"></span>
+      </div>
+      <div class="hamburger-btn" onclick="goMenu()"><span></span><span></span><span></span></div>
+    </div>
   </div>
   <div class="scroll">
     <div class="home-body">
@@ -38,19 +44,19 @@
       <div class="home-quick-grid">
         <div class="home-quick-card" onclick="goBooking()">
           <div class="hq-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-          <div class="hq-label">일회성 세차신청</div>
+          <div class="hq-label" id="hq-label-1">일회성 세차신청</div>
         </div>
         <div class="home-quick-card" onclick="goSubscribe()">
           <div class="hq-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
-          <div class="hq-label">구독결제신청</div>
+          <div class="hq-label" id="hq-label-2">구독결제신청</div>
         </div>
         <div class="home-quick-card" onclick="goVehicles()">
           <div class="hq-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg></div>
-          <div class="hq-label">내 차량 확인</div>
+          <div class="hq-label" id="hq-label-3">내 차량 확인</div>
         </div>
-        <div class="home-quick-card" onclick="goFaq()">
+        <div class="home-quick-card" onclick="goFaqOrInquiries()">
           <div class="hq-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-          <div class="hq-label">자주 묻는 질문</div>
+          <div class="hq-label" id="hq-label-4">자주 묻는 질문</div>
         </div>
       </div>
 
@@ -104,17 +110,17 @@
         <div class="menu-group-title">세차 정보</div>
         <div class="menu-item" onclick="goBooking()">
           <div class="menu-item-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-          <div class="menu-item-text"><div class="mi-lbl">일회성 세차신청</div><div class="mi-sub">예약 확인 · 일정 관리</div></div>
+          <div class="menu-item-text"><div class="mi-lbl" id="mi-label-1">일회성 세차신청</div><div class="mi-sub">예약 확인 · 일정 관리</div></div>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
         <div class="menu-item" onclick="goSubscribe()">
           <div class="menu-item-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
-          <div class="menu-item-text"><div class="mi-lbl">구독결제신청</div><div class="mi-sub">정기적으로 편하게 세차받기</div></div>
+          <div class="menu-item-text"><div class="mi-lbl" id="mi-label-2">구독결제신청</div><div class="mi-sub">정기적으로 편하게 세차받기</div></div>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
         <div class="menu-item" onclick="goVehicles()">
           <div class="menu-item-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg></div>
-          <div class="menu-item-text"><div class="mi-lbl">내 차량 확인</div><div class="mi-sub">등록한 차량과 세차 현황을 확인하세요</div></div>
+          <div class="menu-item-text"><div class="mi-lbl" id="mi-label-3">내 차량 확인</div><div class="mi-sub">등록한 차량과 세차 현황을 확인하세요</div></div>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
       </div>
@@ -135,10 +141,44 @@
           <div class="menu-item-text"><div class="mi-lbl">자주 묻는 질문</div><div class="mi-sub">궁금한 점을 빠르게 확인하세요</div></div>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
+        <div class="menu-item" onclick="goInquiries()">
+          <div class="menu-item-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
+          <div class="menu-item-text"><div class="mi-lbl">문의하기</div><div class="mi-sub">궁금한 점을 직접 남겨주세요</div></div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
         <div class="menu-item" onclick="showToast('📞 1588-0000 으로 연결됩니다')">
           <div class="menu-item-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
           <div class="menu-item-text"><div class="mi-lbl">고객센터</div><div class="mi-sub">1588-0000</div></div>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+      <div class="menu-group" id="menu-admin-group" style="display:none;">
+        <div class="menu-group-title">관리자 설정</div>
+        <div class="faq-item notif-settings" onclick="toggleFaqItem(this)">
+          <div class="faq-q">
+            <div class="faq-q-text">알림 설정</div>
+            <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="faq-a">
+            <div class="notif-settings-inner">
+              <div class="notif-cat-row">
+                <div class="notif-cat-lbl">일회성 세차신청자 알림</div>
+                <div class="vw-toggle" id="notif-toggle-reservation" onclick="toggleNotifCategory('reservation', event)"></div>
+              </div>
+              <div class="notif-cat-row">
+                <div class="notif-cat-lbl">구독결제 신청자 알림</div>
+                <div class="vw-toggle" id="notif-toggle-subscription" onclick="toggleNotifCategory('subscription', event)"></div>
+              </div>
+              <div class="notif-cat-row">
+                <div class="notif-cat-lbl">고객 차량 확인 알림</div>
+                <div class="vw-toggle" id="notif-toggle-vehicle" onclick="toggleNotifCategory('vehicle', event)"></div>
+              </div>
+              <div class="notif-cat-row">
+                <div class="notif-cat-lbl">고객 문의 알림</div>
+                <div class="vw-toggle" id="notif-toggle-inquiry" onclick="toggleNotifCategory('inquiry', event)"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       </div>
@@ -259,12 +299,12 @@
 
       <div class="resv-login-bar login-bar-slot"></div>
 
-      <div class="resv-area-box">
-        <div class="resv-area-title">📍 방문 가능 지역</div>
-        <div class="resv-area-text">서울지역 → 강서구<br>김포지역 → 고촌,풍무,사우동<br><br>위 지역에서만 가능합니다.<br>(추후 지역은 고객센터로 문의바랍니다.)</div>
-      </div>
-
       <div id="resv-main">
+        <div class="resv-area-box">
+          <div class="resv-area-title">📍 현재 방문가능지역</div>
+          <div class="resv-area-text">서울지역 → 강서구<br>김포지역 → 고촌,풍무,사우동<br><br>(원하시는 지역이 있다면 고객센터로 문의바랍니다.)</div>
+        </div>
+
         <div class="resv-cal-card">
           <div class="resv-cal-header">
             <div class="resv-cal-nav" onclick="calShiftMonth(-1)">‹</div>
@@ -277,10 +317,15 @@
           <div class="resv-cal-grid" id="resv-cal-grid"></div>
         </div>
 
-        <div class="resv-list-section">
+        <div class="resv-slot-panel" id="resv-slot-panel" style="display:none;">
+          <div class="resv-list-title" id="resv-slot-title">—</div>
+          <div class="resv-slot-grid" id="resv-slot-grid"></div>
+        </div>
+
+        <div class="resv-list-section" id="resv-list-section">
           <div class="resv-list-header">
             <div class="resv-list-title" id="resv-list-title">—</div>
-            <button class="resv-add-btn" onclick="openReservationModal()">+ 예약 추가</button>
+            <button class="resv-add-btn" id="resv-add-btn" onclick="openReservationModal()">+ 예약 추가</button>
           </div>
           <div id="resv-list"></div>
         </div>
@@ -314,7 +359,7 @@
     <div class="tb-back" onclick="goHome()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
     </div>
-    <div class="tb-center">내 차량 확인</div>
+    <div class="tb-center" id="veh-page-title">내 차량 확인</div>
     <div class="tb-spacer"></div>
   </div>
 
@@ -326,12 +371,24 @@
       <div class="login-bar-slot"></div>
 
       <div id="veh-main" class="veh-main">
-        <div class="resv-list-header">
+        <div class="resv-list-header" id="veh-static-list-header">
           <div class="resv-list-title" id="veh-list-title">등록한 차량</div>
           <button class="resv-add-btn" id="veh-add-btn" onclick="openVehicleModal()">+ 차량 등록</button>
         </div>
         <input class="mg-input veh-search" id="veh-search" style="display:none;" type="text" placeholder="차량번호로 검색" oninput="renderVehicles()">
-        <button class="resv-add-btn veh-admin-add-btn" id="veh-admin-add-btn" style="display:none;" onclick="openVehicleModal()">+ 차량 등록하기</button>
+
+        <div class="resv-cal-card veh-cal-only" id="veh-cal-card" style="display:none;">
+          <div class="resv-cal-header">
+            <div class="resv-cal-nav" onclick="vehCalShiftMonth(-1)">‹</div>
+            <div class="resv-cal-title" id="veh-cal-title">—</div>
+            <div class="resv-cal-nav" onclick="vehCalShiftMonth(1)">›</div>
+          </div>
+          <div class="resv-cal-weekdays">
+            <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+          </div>
+          <div class="resv-cal-grid" id="veh-cal-grid"></div>
+        </div>
+
         <div id="veh-list"></div>
       </div>
 
@@ -355,6 +412,30 @@
 </div>
 
 <!-- ══════════════════════════════
+     5-1b. 날짜별 등록 차량 (관리자)
+══════════════════════════════ -->
+<div class="page" id="pg-veh-day">
+  <div class="safe-t"></div>
+  <div class="topbar">
+    <div class="tb-back" onclick="goVehicles()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+    <div class="tb-center" id="veh-day-title">등록 차량</div>
+    <div class="tb-spacer"></div>
+  </div>
+
+  <div class="scroll">
+    <div class="resv-body">
+      <div class="resv-list-header" style="justify-content:flex-start;gap:8px;">
+        <button class="resv-add-btn" onclick="openVehicleModal()">+ 차량 등록하기</button>
+        <button class="resv-add-btn" onclick="openAptModal()">+ 아파트 단지 등록</button>
+      </div>
+      <div id="veh-day-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
      5-2. 차량 상세 (세차 기록 캘린더)
 ══════════════════════════════ -->
 <div class="page" id="pg-vehicle-detail">
@@ -369,6 +450,8 @@
 
   <div class="scroll">
     <div class="resv-body">
+
+      <div id="vdetail-info-panel"></div>
 
       <div class="resv-cal-card">
         <div class="resv-cal-header">
@@ -448,6 +531,26 @@
       <div class="mg-field" id="veh-model-custom-wrap" style="display:none;">
         <input class="mg-input" id="veh-model-custom" type="text" placeholder="차량명을 입력하세요">
       </div>
+      <div class="mg-field veh-admin-only" style="display:none;">
+        <label class="mg-label">주차 위치</label>
+        <select class="mg-input" id="veh-parking-loc">
+          <option value="">선택하세요</option>
+        </select>
+      </div>
+      <div class="mg-field veh-admin-only" style="display:none;">
+        <label class="mg-label">결제여부</label>
+        <select class="mg-input" id="veh-payment-plan">
+          <option value="">선택하세요</option>
+          <option value="일회성">일회성</option>
+          <option value="주 1회 월 4회">주 1회 월 4회</option>
+          <option value="주 2회 월 8회">주 2회 월 8회</option>
+          <option value="격주진행 월 2회">격주진행 월 2회</option>
+        </select>
+      </div>
+      <div class="mg-field veh-admin-only" style="display:none;margin-bottom:8px;">
+        <label class="mg-label">특이사항</label>
+        <input class="mg-input" id="veh-note" type="text" placeholder="특이사항을 입력하세요">
+      </div>
       <div class="mg-field" id="veh-form-delete-wrap" style="display:none;text-align:center;margin-top:8px;">
         <button class="veh-delete-link" onclick="deleteVehicleFromForm()">🗑 차량 삭제</button>
       </div>
@@ -490,7 +593,7 @@
     <div class="tb-back" onclick="goHome()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
     </div>
-    <div class="tb-center">구독결제신청</div>
+    <div class="tb-center" id="sub-page-title">구독결제신청</div>
     <div class="tb-spacer"></div>
   </div>
 
@@ -505,6 +608,7 @@
         <div class="sub-status" id="sub-status"></div>
         <div class="sub-plan-list" id="sub-plan-list"></div>
         <button class="vw-cta-btn" id="sub-apply-btn" onclick="applySubscription()">구독 신청하기</button>
+        <div id="sub-admin-list" style="display:none;"></div>
       </div>
 
     </div>
@@ -589,23 +693,132 @@
   </div>
 </div>
 
-<!-- 예약 추가/수정 모달 -->
-<div class="reservation-modal" id="reservation-modal">
-  <div class="resv-modal-bg" onclick="closeReservationModal()"></div>
-  <div class="resv-modal-panel">
-    <div class="resv-modal-handle"></div>
-    <div class="resv-modal-header">
-      <div class="resv-modal-title" id="resv-modal-title">예약 추가</div>
-      <div class="resv-modal-close" onclick="closeReservationModal()">✕</div>
+<!-- ══════════════════════════════
+     8. 고객 문의
+══════════════════════════════ -->
+<div class="page" id="pg-inquiries">
+  <div class="safe-t"></div>
+  <div class="topbar">
+    <div class="tb-back" onclick="goHome()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
     </div>
-    <div class="resv-modal-body">
+    <div class="tb-center" id="inq-page-title">문의하기</div>
+    <div class="tb-spacer"></div>
+  </div>
+
+  <div class="scroll">
+    <div class="veh-body">
+
+      <div id="inq-guest-msg" class="veh-guest-msg">카카오 로그인해야<br>이용 가능합니다</div>
+
+      <div class="login-bar-slot"></div>
+
+      <div id="inq-main" class="veh-main">
+        <div class="resv-list-header">
+          <div class="resv-list-title" id="inq-list-title">내 문의 내역</div>
+          <button class="resv-add-btn" id="inq-add-btn" onclick="goInquiryForm()">+ 문의 작성</button>
+        </div>
+        <div id="inq-list"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="bnav">
+    <div class="bnav-btn" onclick="goHome()">
+      <div class="bnav-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div>
+      <div class="bnav-lbl">홈</div>
+    </div>
+    <div class="bnav-btn" onclick="goBooking()">
+      <div class="bnav-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <div class="bnav-lbl">예약</div>
+    </div>
+    <div class="bnav-btn" onclick="goMenu()">
+      <div class="bnav-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+      <div class="bnav-lbl">내정보</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     8-2. 문의 작성
+══════════════════════════════ -->
+<div class="page" id="pg-inquiry-form">
+  <div class="safe-t"></div>
+  <div class="topbar">
+    <div class="tb-back" onclick="goInquiries()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+    <div class="tb-center">문의 작성</div>
+    <div class="tb-spacer"></div>
+  </div>
+
+  <div class="scroll">
+    <div class="resv-body" style="padding-bottom:100px;">
       <div class="mg-field">
-        <label class="mg-label">예약 날짜 <span class="mg-req">*</span></label>
-        <input class="mg-input" id="rv-date" type="date">
+        <label class="mg-label">제목</label>
+        <input class="mg-input" id="inq-title" type="text" placeholder="문의 제목을 입력하세요">
       </div>
       <div class="mg-field">
-        <label class="mg-label">예약 시간</label>
-        <input class="mg-input" id="rv-time" type="time">
+        <label class="mg-label">내용</label>
+        <textarea class="mg-input veh-record-note" id="inq-content" style="min-height:160px;" placeholder="문의하실 내용을 자세히 작성해주세요"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="vw-bottom-cta">
+    <button class="vw-cta-btn" onclick="saveInquiry()">문의 등록</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     8-3. 문의 상세
+══════════════════════════════ -->
+<div class="page" id="pg-inquiry-detail">
+  <div class="safe-t"></div>
+  <div class="topbar">
+    <div class="tb-back" onclick="goInquiries()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+    <div class="tb-center">문의 상세</div>
+    <div class="tb-spacer"></div>
+  </div>
+
+  <div class="scroll">
+    <div class="resv-body" style="padding-bottom:100px;">
+      <div id="inq-detail-panel"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     4-2. 예약 추가/수정
+══════════════════════════════ -->
+<div class="page" id="pg-resv-form">
+  <div class="safe-t"></div>
+  <div class="topbar">
+    <div class="tb-back" onclick="closeReservationModal()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+    <div class="tb-center" id="resv-modal-title">예약 추가</div>
+    <div class="tb-spacer"></div>
+  </div>
+
+  <div class="scroll">
+    <div class="resv-body" style="padding-bottom:100px;">
+      <div class="mg-field" id="rv-datetime-summary" style="display:none;">
+        <label class="mg-label">예약 일시</label>
+        <div class="mg-input rv-datetime-readonly" id="rv-datetime-readonly-text">—</div>
+      </div>
+      <div id="rv-datetime-fields">
+        <div class="mg-field">
+          <label class="mg-label">예약 날짜 <span class="mg-req">*</span></label>
+          <input class="mg-input" id="rv-date" type="date">
+        </div>
+        <div class="mg-field">
+          <label class="mg-label">예약 시간</label>
+          <input class="mg-input" id="rv-time" type="time">
+        </div>
       </div>
       <div class="mg-field">
         <label class="mg-label">고객명 <span class="mg-req">*</span></label>
@@ -632,35 +845,73 @@
         <input class="mg-input" id="rv-note" type="text" placeholder="요청사항 등">
       </div>
     </div>
-    <div class="resv-modal-footer">
-      <button class="resv-cancel-btn" onclick="closeReservationModal()">취소</button>
-      <button class="resv-save-btn" onclick="saveReservation()">저장</button>
+  </div>
+
+  <div class="vw-bottom-cta">
+    <button class="vw-cta-btn" id="rv-save-btn" onclick="saveReservation()">저장</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     4-3. 예약 상세 (관리자)
+══════════════════════════════ -->
+<!-- ══════════════════════════════
+     4-3b. 날짜별 예약 (관리자)
+══════════════════════════════ -->
+<div class="page" id="pg-resv-day">
+  <div class="safe-t"></div>
+  <div class="topbar">
+    <div class="tb-back" onclick="goBooking()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+    <div class="tb-center" id="resv-day-title">예약</div>
+    <div class="tb-spacer"></div>
+  </div>
+
+  <div class="scroll">
+    <div class="resv-body">
+      <div id="resv-day-list"></div>
     </div>
   </div>
 </div>
 
-<!-- 예약 삭제 확인 모달 -->
-<div class="delete-modal" id="resv-delete-modal">
-  <div class="dm-bg" onclick="closeResvDeleteModal()"></div>
-  <div class="dm-card">
-    <div class="dm-circle">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-      </svg>
+<div class="page" id="pg-resv-detail">
+  <div class="safe-t"></div>
+  <div class="topbar">
+    <div class="tb-back" onclick="goBooking()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
     </div>
-    <div class="dm-title">예약을 삭제할까요?</div>
-    <div class="dm-sub">삭제하면 복구할 수 없습니다</div>
-    <div class="dm-info">
-      <div class="dm-car-num" id="rdm-name">—</div>
-      <div class="dm-car-name" id="rdm-date">—</div>
-      <div class="dm-car-apt" id="rdm-car">—</div>
-    </div>
-    <div class="dm-btns">
-      <button class="dm-cancel-btn" onclick="closeResvDeleteModal()">취소</button>
-      <button class="dm-confirm-btn" onclick="confirmResvDelete()">삭제</button>
+    <div class="tb-center">예약 상세</div>
+    <div class="tb-spacer"></div>
+  </div>
+
+  <div class="scroll">
+    <div class="resv-body">
+      <div id="resv-detail-panel"></div>
     </div>
   </div>
 </div>
+
+<!-- ══════════════════════════════
+     4-4. 알림 (관리자)
+══════════════════════════════ -->
+<div class="page" id="pg-notifications">
+  <div class="safe-t"></div>
+  <div class="topbar">
+    <div class="tb-back" onclick="goHome()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+    <div class="tb-center">알림</div>
+    <div class="tb-spacer"></div>
+  </div>
+
+  <div class="scroll">
+    <div class="resv-body">
+      <div id="notif-list"></div>
+    </div>
+  </div>
+</div>
+
 
 <!-- 필수입력 경고 모달 -->
 <div class="reset-modal" id="required-modal">
@@ -718,12 +969,34 @@
   </div>
 </div>
 
+<!-- 아파트 단지 등록 모달 -->
+<div class="reservation-modal" id="apt-modal">
+  <div class="resv-modal-bg" onclick="closeAptModal()"></div>
+  <div class="resv-modal-panel">
+    <div class="resv-modal-handle"></div>
+    <div class="resv-modal-header">
+      <div class="resv-modal-title">아파트 단지 등록</div>
+      <div class="resv-modal-close" onclick="closeAptModal()">✕</div>
+    </div>
+    <div class="resv-modal-body">
+      <div class="mg-field" style="margin-bottom:8px;">
+        <label class="mg-label">단지명</label>
+        <input class="mg-input" id="apt-name" type="text" placeholder="예: 래미안 강서 자이">
+      </div>
+    </div>
+    <div class="resv-modal-footer">
+      <button class="resv-cancel-btn" onclick="closeAptModal()">취소</button>
+      <button class="resv-save-btn" onclick="saveApartmentComplex()">저장</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 </div><!-- /device-frame -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="alert('Supabase 스크립트를 불러오지 못했습니다. 인터넷 연결 또는 광고 차단 확장 프로그램을 확인해주세요.')"></script>
 <script src="https://js.tosspayments.com/v1/payment-widget"></script>
-<script src="app.js"></script>
+<script src="app.js?v=37"></script>
 </body>
 </html>

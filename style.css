@@ -104,6 +104,18 @@ input, textarea {
 }
 .hamburger-btn span{width:20px;height:2px;background:var(--text);border-radius:2px;}
 
+.tb-right-icons{display:flex;align-items:center;gap:10px;}
+.bell-btn{
+  position:relative;width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text);cursor:pointer;
+}
+.bell-btn:active{background:var(--bg);}
+.bell-dot{
+  position:absolute;top:4px;right:5px;width:8px;height:8px;
+  border-radius:50%;background:#dc2626;border:1.5px solid var(--white);
+}
+
 /* ── SCROLL BODY ── */
 .scroll{
   flex:1;
@@ -364,6 +376,10 @@ input, textarea {
 }
 .faq-item.open .faq-a{max-height:220px;}
 .faq-a-inner{padding:0 16px 16px 48px;}
+.faq-item.notif-settings.open .faq-a{max-height:320px;}
+.notif-settings-inner{padding:2px 16px 16px;display:flex;flex-direction:column;gap:16px;}
+.notif-cat-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.notif-cat-lbl{font-size:13px;font-weight:700;color:var(--text);}
 
 /* ════════════════════════════════════
    세차 예약 (예약 캘린더)
@@ -422,6 +438,32 @@ input, textarea {
 .resv-day.today .rd-num{color:var(--blue);font-weight:800;}
 .resv-day.selected{border-color:var(--blue);background:rgba(37,99,235,.06);}
 .resv-day.selected .rd-num{color:var(--blue);font-weight:800;}
+.resv-day.disabled{cursor:not-allowed;opacity:.35;}
+.resv-day.disabled:active{background:none;}
+
+.resv-slot-panel{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+  display:flex;flex-direction:column;gap:12px;
+}
+.resv-slot-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+}
+.resv-slot-btn{
+  height:42px;border-radius:10px;font-size:13px;font-weight:700;
+  font-family:'JetBrains Mono',monospace;
+  background:var(--bg);border:1.5px solid var(--border);color:var(--text);
+  cursor:pointer;transition:all .15s;
+}
+.resv-slot-btn:active{transform:scale(.96);}
+.resv-slot-btn.taken{
+  background:var(--bg);color:var(--dim);border-color:var(--border);
+  cursor:not-allowed;text-decoration:line-through;opacity:.6;
+}
+.resv-slot-btn.closed-day{grid-column:1/-1;height:auto;padding:14px;color:var(--muted);cursor:default;background:none;border:none;}
+
+.rv-datetime-readonly{display:flex;align-items:center;font-weight:700;}
 .rd-dot{
   min-width:16px;height:16px;padding:0 3px;border-radius:8px;
   background:var(--blue);color:#fff;
@@ -483,19 +525,9 @@ input, textarea {
   box-shadow:0 1px 4px rgba(0,0,0,.04);
   transition:all .15s;
 }
-.resv-item.done{
-  border-color:rgba(22,163,74,.3);
-  background:rgba(22,163,74,.02);
-}
-.resv-chk{
-  width:30px;height:30px;border-radius:50%;flex-shrink:0;
-  border:2px solid var(--border2);background:#f8f9fc;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all .15s;margin-top:2px;
-}
-.resv-chk svg{display:none;}
-.resv-chk.done{border-color:var(--green);background:var(--green);}
-.resv-chk.done svg{display:block;}
+.resv-item.admin{flex-direction:column;align-items:stretch;gap:10px;cursor:pointer;}
+.resv-item.admin:active{background:var(--bg);}
+.resv-item.admin.rejected{border-color:#dc2626;border-width:2.5px;}
 .resv-item-body{flex:1;min-width:0;}
 .resv-item-top{
   display:flex;align-items:center;gap:8px;flex-wrap:wrap;
@@ -506,6 +538,20 @@ input, textarea {
 }
 .resv-name{font-size:14px;font-weight:800;color:var(--text);}
 .resv-car{font-size:12px;color:var(--muted);font-weight:600;}
+.resv-status-badge{
+  display:inline-block;font-size:12px;font-weight:700;padding:4px 11px;border-radius:20px;margin-top:4px;
+}
+.resv-status-badge.pending{background:rgba(37,99,235,.08);color:var(--blue);}
+.resv-status-badge.accepted{background:rgba(22,163,74,.1);color:var(--green);}
+.resv-status-badge.rejected{background:rgba(220,38,38,.1);color:#dc2626;}
+
+#notif-list{display:flex;flex-direction:column;gap:10px;}
+.notif-section-title{
+  font-size:12px;font-weight:800;color:var(--muted);
+  letter-spacing:.5px;text-transform:uppercase;
+  margin:10px 2px 0;
+}
+.notif-section-title:first-child{margin-top:0;}
 .resv-loc,.resv-phone,.resv-note{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5;}
 .resv-item-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0;}
 .resv-edit-btn,.resv-del-btn{
@@ -516,6 +562,17 @@ input, textarea {
 }
 .resv-edit-btn:active{background:rgba(37,99,235,.1);color:var(--blue);}
 .resv-del-btn:active{background:rgba(220,38,38,.1);color:#dc2626;}
+
+.resv-detail-actions{display:flex;gap:10px;margin-top:16px;}
+.resv-accept-btn,.resv-reject-btn{
+  flex:1;height:46px;border-radius:12px;font-size:14px;font-weight:800;
+  font-family:'Noto Sans KR',sans-serif;
+  background:var(--bg);border:1.5px solid var(--border);color:var(--muted);
+  cursor:pointer;transition:all .15s;
+}
+.resv-accept-btn:active,.resv-reject-btn:active{transform:scale(.97);}
+.resv-accept-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+.resv-reject-btn.active{background:#dc2626;border-color:#dc2626;color:#fff;}
 
 /* ════════════════════════════════════
    내 차량 관리
