@@ -57,15 +57,13 @@ function showPage(id){
   if(scrollEl) scrollEl.scrollTop = 0;
 }
 
-function goHome(){ showPage('pg-home'); renderHomeQuickGrid(); }
+function goHome(){ _resvDatePickActive = false; showPage('pg-home'); renderHomeQuickGrid(); renderHome(); }
 function goMenu(){ showPage('pg-menu'); renderMenuPage(); }
 
 function renderMenuPage(){
   const guestMsg = document.getElementById('menu-guest-msg');
   const main = document.getElementById('menu-main');
   if(!guestMsg || !main) return;
-
-  document.getElementById('menu-admin-link').style.display = isAdmin ? 'none' : '';
 
   if(!currentUser){
     guestMsg.style.display = '';
@@ -106,8 +104,8 @@ function renderNotifCategoryToggles(){
 function renderHomeQuickGrid(){
   const map = isAdmin
     ? {1:'일회성 세차신청자', 2:'구독결제 신청자', 3:'고객 차량 확인', 4:'고객 문의'}
-    : {1:'일회성 세차신청', 2:'구독결제신청', 3:'내 차량 확인', 4:'자주 묻는 질문'};
-  [1,2,3,4].forEach(n=>{
+    : {1:'일회성 세차신청', 2:'구독결제신청', 3:'내 차량 확인', 4:'문의하기'};
+  [1,2,4].forEach(n=>{
     const hq = document.getElementById(`hq-label-${n}`);
     if(hq) hq.textContent = map[n];
   });
@@ -120,6 +118,130 @@ function renderHomeQuickGrid(){
   const bellDot = document.getElementById('home-bell-dot');
   bellBtn.style.display = isAdmin ? '' : 'none';
   bellDot.style.display = (isAdmin && hasAdminAlerts()) ? '' : 'none';
+}
+
+/* ════════════════════════════════════
+   홈 — 헤더 아바타 / 개인화 히어로 / 차량 카드
+════════════════════════════════════ */
+const MONTHLY_LIMIT = 50;
+const SUBSCRIPTION_WASH_QUOTA = 4; // TODO: 플랜별 월 제공 횟수 필드가 없어 임시 고정값 사용
+
+function daysUntil(dateStr){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const [y,m,d] = dateStr.split('-').map(Number);
+  return Math.round((new Date(y, m-1, d) - today) / 86400000);
+}
+
+function renderHomeHero(){
+  const el = document.getElementById('home-hero');
+  if(!el) return;
+
+  const guestMarkup = `
+    <div class="hero-tag">★ 예약제 진행</div>
+    <div class="hero-guest-title">프리미엄 출장세차,<br>월 ${MONTHLY_LIMIT}대만 관리합니다.</div>
+    <div class="hero-guest-sub">카카오 1초 로그인하고 바로 예약하세요</div>
+    <button class="hero-guest-cta" onclick="kakaoLogin()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#191600"><path d="M12 3C6.48 3 2 6.48 2 10.8c0 2.76 1.83 5.18 4.6 6.58-.2.75-.73 2.7-.84 3.12-.13.52.19.51.4.37.17-.11 2.65-1.8 3.73-2.54.68.1 1.38.15 2.11.15 5.52 0 10-3.48 10-7.68C22 6.48 17.52 3 12 3z"/></svg>
+      카카오 1초 로그인
+    </button>`;
+
+  if(isAdmin){
+    el.className = 'home-hero hero-status';
+    el.innerHTML = `
+      <div class="hero-status-label">관리자로 로그인됨</div>
+      <div class="hero-status-grid">
+        <div class="hero-status-row">예약 · 구독 · 차량 현황은 우측 상단 알림에서 확인하세요</div>
+      </div>`;
+    return;
+  }
+
+  if(!currentUser){
+    el.className = 'home-hero hero-guest';
+    el.innerHTML = guestMarkup;
+    return;
+  }
+
+  const upcoming = RESERVATIONS
+    .filter(r=>r.userId===currentUser.id && r.status==='accepted' && daysUntil(r.date) >= 0)
+    .sort((a,b)=> a.date===b.date ? (a.time||'').localeCompare(b.time||'') : a.date.localeCompare(b.date))[0];
+
+  if(upcoming){
+    const dday = daysUntil(upcoming.date);
+    el.className = 'home-hero hero-status';
+    el.innerHTML = `
+      <div class="hero-status-label">다음 세차 예약</div>
+      <div class="hero-dday-row">
+        <span class="hero-dday tnum">${dday===0?'D-DAY':'D-'+dday}</span>
+        ${upcoming.time?`<span class="hero-dday-time tnum">${escapeHtml(upcoming.time)}</span>`:''}
+      </div>
+      <div class="hero-status-grid">
+        <div class="hero-status-row">담당 <strong>출세했다 전담팀</strong></div>
+        ${upcoming.carNum?`<div class="hero-status-row">차량 <strong>${escapeHtml(upcoming.carNum)}${upcoming.carModel?' · '+escapeHtml(upcoming.carModel):''}</strong></div>`:''}
+      </div>`;
+    return;
+  }
+
+  if(CURRENT_SUBSCRIPTION && CURRENT_SUBSCRIPTION.status === 'active'){
+    const used = Math.min(subscriptionUsageCount, SUBSCRIPTION_WASH_QUOTA);
+    const pct = Math.round(used / SUBSCRIPTION_WASH_QUOTA * 100);
+    el.className = 'home-hero hero-status';
+    el.innerHTML = `
+      <div class="hero-sub-label">이번 달 구독 이용 현황</div>
+      <div class="hero-gauge-row">
+        <span class="hero-gauge-count tnum">이번 달 사용 <em>${used}/${SUBSCRIPTION_WASH_QUOTA}회</em></span>
+        <span class="hero-gauge-remain tnum">잔여 ${SUBSCRIPTION_WASH_QUOTA-used}회</span>
+      </div>
+      <div class="hero-gauge-track"><div class="hero-gauge-fill" style="width:${pct}%;"></div></div>`;
+    return;
+  }
+
+  el.className = 'home-hero hero-guest';
+  el.innerHTML = `
+    <div class="hero-tag">★ 예약제 진행</div>
+    <div class="hero-guest-title">프리미엄 출장세차,<br>월 ${MONTHLY_LIMIT}대만 관리합니다.</div>
+    <div class="hero-guest-sub">지금 예약하면 바로 배정됩니다</div>
+    <button class="hero-guest-cta hero-guest-cta-blue" onclick="goBooking()">지금 예약하기</button>`;
+}
+
+function renderHomeSubPrice(){
+  const el = document.getElementById('home-sub-price');
+  if(!el) return;
+  if(CURRENT_SUBSCRIPTION && CURRENT_SUBSCRIPTION.status === 'active'){
+    el.textContent = '구독 중 · 플랜 관리하기';
+    return;
+  }
+  const plan = SUBSCRIPTION_PLANS.find(p=>p.price > 0);
+  el.textContent = plan ? `월 ${plan.price.toLocaleString()}원부터` : '정기구독으로 더 합리적으로';
+}
+
+async function renderHomeVehicleCard(){
+  const plateEl = document.getElementById('home-vc-plate');
+  const metaEl = document.getElementById('home-vc-meta');
+  if(!plateEl) return;
+
+  if(isAdmin){
+    plateEl.textContent = '고객 차량 확인';
+    metaEl.textContent = '예약자 · 구독자 차량을 관리하세요';
+    return;
+  }
+  if(!currentUser){
+    plateEl.textContent = '내 차량 확인';
+    metaEl.textContent = '로그인하면 차량별 세차 이력을 확인할 수 있어요';
+    return;
+  }
+  plateEl.textContent = '내 차량 확인';
+  metaEl.textContent = '세차를 기다리고 있어요';
+}
+
+async function renderHome(){
+  await fetchSubscribePlans();
+  if(currentUser && !isAdmin){
+    await fetchMySubscription();
+    await fetchSubscriptionUsage();
+  }
+  renderHomeHero();
+  renderHomeSubPrice();
+  await renderHomeVehicleCard();
 }
 
 function hasAdminAlerts(){
@@ -254,6 +376,7 @@ function renderNotifications(){
 }
 
 function goStory(){ showPage('pg-story'); }
+function goGallery(){ showPage('pg-gallery'); }
 function goFaq(){ showPage('pg-faq'); }
 function goFaqOrInquiries(){
   if(isAdmin) goInquiries(); else goFaq();
@@ -269,6 +392,7 @@ async function goBooking(){
   }
   if(!isAdmin) calSelectedDate = null;
   await fetchReservations();
+  if(!isAdmin) await fetchVehicles();
   renderCalendar();
 }
 
@@ -439,6 +563,7 @@ if(supabase){
     if(document.getElementById('pg-booking').classList.contains('on')) renderCalendar();
     await fetchVehicles();
     if(document.getElementById('pg-vehicles').classList.contains('on')) renderVehicles();
+    if(document.getElementById('pg-home').classList.contains('on')) await renderHome();
     if(vdetailVehicleId && document.getElementById('pg-vehicle-detail').classList.contains('on')){
       await fetchWashRecords();
       renderVdetailCalendar();
@@ -466,6 +591,7 @@ function rowToLocal(r){
     id: r.id, date: r.date, time: r.time ? r.time.slice(0,5) : '',
     name: r.name, phone: r.phone || '', carNum: r.car_num || '',
     carModel: r.car_model || '', loc: r.loc || '', note: r.note || '',
+    washType: r.wash_type || 'exterior', price: r.price || null,
     done: !!r.done, status: r.status || 'pending',
     syncedVehicleId: r.synced_vehicle_id || null, userId: r.user_id || null,
     createdAt: r.created_at || null
@@ -590,7 +716,7 @@ function renderCalendar(){
   renderReservationList();
 }
 
-const BOOKING_SLOTS = ['21:00','21:30','22:00','22:30','23:00','23:30','00:00','00:30','01:00','01:30'];
+const BOOKING_SLOTS = ['21:00','21:30','22:00','22:30','23:00','23:30','00:00','00:30','01:00'];
 
 function renderSlotPanel(){
   const panel = document.getElementById('resv-slot-panel');
@@ -627,6 +753,21 @@ function renderSlotPanel(){
 }
 
 function selectBookingSlot(time){
+  if(_resvDatePickActive){
+    if(calSelectedDate === todayKey()){
+      showToast('당일 변경은 불가합니다');
+      return;
+    }
+    _resvDatePickActive = false;
+    document.getElementById('rv-date').value = calSelectedDate;
+    document.getElementById('rv-time').value = time;
+    const dayNames=['일','월','화','수','목','금','토'];
+    const [y,m,d] = calSelectedDate.split('-').map(Number);
+    const dow = dayNames[new Date(y, m-1, d).getDay()];
+    document.getElementById('rv-datetime-readonly-text').textContent = `${m}월 ${d}일(${dow}) ${time}`;
+    showPage('pg-resv-form');
+    return;
+  }
   _preselectedTime = time;
   openReservationModal();
 }
@@ -669,6 +810,10 @@ function renderResvDay(){
 }
 
 function selectCalDate(dateKey){
+  if(_resvDatePickActive && dateKey === todayKey()){
+    showToast('당일 변경은 불가합니다');
+    return;
+  }
   calSelectedDate = dateKey;
   renderCalendar();
 }
@@ -688,19 +833,24 @@ function renderReservationList(){
     return;
   }
 
-  el.innerHTML = items.map(r=>`
+  el.innerHTML = items.map(r=>{
+    const linkedVehicle = r.syncedVehicleId ? VEHICLES.find(v=>v.id===r.syncedVehicleId) : null;
+    const washStatus = linkedVehicle ? linkedVehicle.wash_status : null;
+    const statusBadge = washStatus === 'washing'
+      ? `<span class="veh-wash-badge washing">세차중</span>`
+      : washStatus === 'done'
+        ? `<span class="veh-wash-badge done">세차완료</span>`
+        : '';
+    return `
     <div class="resv-item" onclick="goResvDetail('${r.id}')" style="cursor:pointer;">
-      <div class="resv-item-body">
-        <div class="resv-item-top">
-          <span class="resv-time">${(()=>{const [ry,rm,rd]=r.date.split('-').map(Number); return `${rm}/${rd}(${dayNames[new Date(ry,rm-1,rd).getDay()]})`;})()}${r.time?' '+escapeHtml(r.time):''}</span>
-          <span class="resv-name">${escapeHtml(r.name)}</span>
-          ${r.carNum?`<span class="resv-car">${escapeHtml(r.carNum)}${r.carModel?' · '+escapeHtml(r.carModel):''}</span>`:''}
-        </div>
-        ${r.loc?`<div class="resv-loc">📍 ${escapeHtml(r.loc)}</div>`:''}
-        ${r.phone?`<div class="resv-phone">📞 ${escapeHtml(r.phone)}</div>`:''}
-        ${r.note?`<div class="resv-note">${escapeHtml(r.note)}</div>`:''}
+      <div class="resv-item-body resv-item-lines">
+        <div class="resv-time">${(()=>{const [ry,rm,rd]=r.date.split('-').map(Number); return `${rm}/${rd}(${dayNames[new Date(ry,rm-1,rd).getDay()]})`;})()}${r.time?' '+escapeHtml(r.time):''}${statusBadge}</div>
+        <div class="resv-name">${escapeHtml(r.name)}</div>
+        ${r.carNum?`<div class="resv-car">${escapeHtml(r.carNum)}</div>`:''}
+        ${r.carModel?`<div class="resv-car">${escapeHtml(r.carModel)}</div>`:''}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 let _resvDetailId = null;
@@ -743,7 +893,10 @@ async function cancelMyReservation(id){
   const r = RESERVATIONS.find(x=>x.id===id);
   if(!r) return;
 
-  if(r.syncedVehicleId) await supabase.from('vehicles').delete().eq('id', r.syncedVehicleId);
+  if(r.syncedVehicleId){
+    const {error: unschedErr} = await supabase.rpc('unschedule_wash_record', {p_vehicle_id: r.syncedVehicleId, p_wash_date: r.date});
+    if(unschedErr) console.error('세차 일정 취소 실패', unschedErr);
+  }
   const {error} = await supabase.from('reservations').delete().eq('id', id);
   if(error){ showToast('취소 실패: '+error.message); return; }
 
@@ -755,6 +908,21 @@ async function cancelMyReservation(id){
 
 let _resvEditId = null;
 let _preselectedTime = null;
+let _rvWashType = 'exterior';
+
+const WASH_PRICES = { exterior: 20000, interior: 35000, both: 50000 };
+const WASH_TYPE_LABELS = { exterior: '외부세차', interior: '내부세차', both: '외부+내부세차' };
+
+function selectRvWashType(type){
+  _rvWashType = type;
+  renderRvWashSelection();
+}
+function renderRvWashSelection(){
+  Object.keys(WASH_PRICES).forEach(t=>{
+    document.getElementById('rv-wash-'+t).classList.toggle('selected', _rvWashType===t);
+  });
+  document.getElementById('rv-price-box').textContent = WASH_PRICES[_rvWashType].toLocaleString()+'원';
+}
 
 function openReservationModal(id){
   _resvEditId = id || null;
@@ -772,11 +940,15 @@ function openReservationModal(id){
   document.getElementById('rv-loc').value       = r ? (r.loc||'') : '';
   document.getElementById('rv-note').value      = r ? (r.note||'') : '';
   _preselectedTime = null;
+  _rvWashType = r ? (r.washType || 'exterior') : 'exterior';
+  renderRvWashSelection();
 
   document.getElementById('rv-save-btn').textContent = (!id && !isAdmin) ? '결제하기' : '저장';
 
   const fieldsEl = document.getElementById('rv-datetime-fields');
   const summaryEl = document.getElementById('rv-datetime-summary');
+  const readonlyEl = document.getElementById('rv-datetime-readonly-text');
+  const customerCanEditDate = !isAdmin && id && date !== todayKey();
   if(isAdmin){
     fieldsEl.style.display = '';
     summaryEl.style.display = 'none';
@@ -786,9 +958,11 @@ function openReservationModal(id){
     const dayNames=['일','월','화','수','목','금','토'];
     const [y,m,d] = date.split('-').map(Number);
     const dow = dayNames[new Date(y, m-1, d).getDay()];
-    document.getElementById('rv-datetime-readonly-text').textContent = time
+    readonlyEl.textContent = time
       ? `${m}월 ${d}일(${dow}) ${time}`
       : `${m}월 ${d}일(${dow})`;
+    readonlyEl.classList.toggle('editable', customerCanEditDate);
+    readonlyEl.onclick = customerCanEditDate ? openDatePickerForEdit : null;
   }
 
   showPage('pg-resv-form');
@@ -797,6 +971,23 @@ function closeReservationModal(){
   showPage('pg-booking');
   _resvEditId = null;
   _preselectedTime = null;
+  _resvDatePickActive = false;
+}
+
+let _resvDatePickActive = false;
+function openDatePickerForEdit(){
+  _resvDatePickActive = true;
+  calSelectedDate = document.getElementById('rv-date').value || null;
+  showPage('pg-booking');
+  renderCalendar();
+}
+function goBookingBack(){
+  if(_resvDatePickActive){
+    _resvDatePickActive = false;
+    showPage('pg-resv-form');
+    return;
+  }
+  goHome();
 }
 
 async function saveReservation(){
@@ -813,6 +1004,9 @@ async function saveReservation(){
   const missing=[];
   if(!date) missing.push('예약 날짜');
   if(!name) missing.push('고객명');
+  if(!phone) missing.push('연락처');
+  if(!carNum) missing.push('차량 번호');
+  if(!loc) missing.push('주차 위치');
   if(missing.length){ showRequiredModal(missing.join(', ')); return; }
 
   if(!validateInputs(name, phone, carNum, carModel, loc, note)){
@@ -828,16 +1022,20 @@ async function saveReservation(){
     // TODO: await requestReservationPayment({date, time, name, phone, carNum, carModel, loc, note});
   }
 
+  const price = WASH_PRICES[_rvWashType];
   const payload = {
     date, time: time || null, name, phone: phone || null,
     car_num: carNum || null, car_model: carModel || null,
-    loc: loc || null, note: note || null
+    loc: loc || null, note: note || null,
+    wash_type: _rvWashType, price
   };
   const isNewCustomerBooking = !_resvEditId && !isAdmin;
   if(!_resvEditId){
     payload.user_id = currentUser ? currentUser.id : null;
     if(isNewCustomerBooking) payload.status = 'accepted';
   }
+
+  const oldR = _resvEditId ? RESERVATIONS.find(x=>x.id===_resvEditId) : null;
 
   let error, newReservation;
   if(_resvEditId){
@@ -849,17 +1047,38 @@ async function saveReservation(){
   }
   if(error){ showToast('저장 실패: '+error.message); return; }
 
-  // 결제 완료된 신규 예약은 관리자 "고객차량 관리" 캘린더에 일회성 항목으로 자동 연동됩니다.
+  // 결제 완료된 신규 예약은 관리자 "고객차량 관리" 캘린더에 일회성 항목으로 자동 연동되고,
+  // 해당 차량의 세차 캘린더에도 예정(scheduled) 일정으로 표시됩니다.
   if(isNewCustomerBooking && newReservation){
     const eventDate = new Date(date+'T12:00:00.000Z').toISOString();
-    const {data: newVeh, error: vErr} = await supabase.from('vehicles').insert({
-      user_id: currentUser.id, car_num: carNum || null, car_model: carModel || null,
-      parking_loc: loc || null, payment_plan: '일회성', note: note || null, created_at: eventDate
-    }).select().single();
-    if(!vErr && newVeh){
-      await supabase.from('reservations').update({synced_vehicle_id: newVeh.id}).eq('id', newReservation.id);
+    let vehId = null;
+    const {data: existingVeh} = await supabase.from('vehicles')
+      .select('id').eq('user_id', currentUser.id).eq('car_num', carNum)
+      .order('created_at', {ascending:true}).limit(1).maybeSingle();
+    if(existingVeh){
+      vehId = existingVeh.id;
+    } else {
+      const {data: newVeh, error: vErr} = await supabase.from('vehicles').insert({
+        user_id: currentUser.id, car_num: carNum || null, car_model: carModel || null,
+        parking_loc: loc || null, payment_plan: `일회성 (${WASH_TYPE_LABELS[_rvWashType]} · ${price.toLocaleString()}원)`, note: note || null, created_at: eventDate
+      }).select().single();
+      if(!vErr && newVeh) vehId = newVeh.id;
+    }
+    if(vehId){
+      await supabase.from('reservations').update({synced_vehicle_id: vehId}).eq('id', newReservation.id);
+      const {error: schedErr} = await supabase.rpc('schedule_wash_record', {p_vehicle_id: vehId, p_wash_date: date});
+      if(schedErr) console.error('세차 일정 등록 실패', schedErr);
     }
     await fetchVehicles();
+  }
+
+  // 고객이 예약 날짜를 수정한 경우, 세차 캘린더의 예정 일정도 새 날짜로 옮깁니다.
+  if(_resvEditId && !isAdmin && oldR && oldR.syncedVehicleId && oldR.date !== date){
+    const vehId = oldR.syncedVehicleId;
+    const {error: unschedErr} = await supabase.rpc('unschedule_wash_record', {p_vehicle_id: vehId, p_wash_date: oldR.date});
+    if(unschedErr) console.error('기존 세차 일정 제거 실패', unschedErr);
+    const {error: schedErr} = await supabase.rpc('schedule_wash_record', {p_vehicle_id: vehId, p_wash_date: date});
+    if(schedErr) console.error('새 세차 일정 등록 실패', schedErr);
   }
 
   await fetchReservations();
@@ -1150,6 +1369,7 @@ async function openVehicleModal(id){
   renderAptOptions();
   document.getElementById('veh-parking-loc').value = v ? (v.parking_loc||'') : '';
   document.getElementById('veh-payment-plan').value = v ? (v.payment_plan||'') : '';
+  document.getElementById('veh-wash-status').value = v ? (v.wash_status||'') : '';
   document.getElementById('veh-note').value = v ? (v.note||'') : '';
 
   const catEl = document.getElementById('veh-brand-category');
@@ -1213,6 +1433,7 @@ async function saveVehicle(){
 
   const parkingLoc = document.getElementById('veh-parking-loc').value.trim();
   const paymentPlan = document.getElementById('veh-payment-plan').value;
+  const washStatus = document.getElementById('veh-wash-status').value;
   const note = document.getElementById('veh-note').value.trim();
 
   if(!carNum){ showRequiredModal('차량 번호'); return; }
@@ -1222,6 +1443,7 @@ async function saveVehicle(){
   if(isAdmin){
     payload.parking_loc = parkingLoc || null;
     payload.payment_plan = paymentPlan || null;
+    payload.wash_status = washStatus || null;
     payload.note = note || null;
   }
 
@@ -1299,19 +1521,6 @@ async function goVehicleDetail(id){
   const v = VEHICLES.find(x=>x.id===id);
   document.getElementById('vdetail-title').textContent = v ? (v.car_num || '차량 상세') : '차량 상세';
 
-  const infoPanel = document.getElementById('vdetail-info-panel');
-  if(v && isAdmin && (v.car_model || v.parking_loc || v.payment_plan || v.note)){
-    infoPanel.innerHTML = `
-      <div class="veh-record-card">
-        ${v.car_model?`<div class="veh-card-note">🚘 ${escapeHtml(v.car_model)}</div>`:''}
-        ${v.parking_loc?`<div class="veh-card-note">📍 ${escapeHtml(v.parking_loc)}</div>`:''}
-        ${v.payment_plan?`<div class="veh-card-note">💳 ${escapeHtml(v.payment_plan)}</div>`:''}
-        ${v.note?`<div class="veh-card-note">📝 ${escapeHtml(v.note)}</div>`:''}
-      </div>`;
-  } else {
-    infoPanel.innerHTML = '';
-  }
-
   showPage('pg-vehicle-detail');
   const n = new Date();
   vdetailYear = n.getFullYear();
@@ -1344,6 +1553,9 @@ function vdetailSelectDate(dateKey){
   renderVdetailCalendar();
 }
 
+const WASH_STATUS_LABELS = {scheduled:'예정', washing:'세차중', done:'세차완료'};
+const WASH_SERVICE_TYPE_LABELS = {onetime:'일회성 세차', subscription:'구독 서비스'};
+
 function renderVdetailCalendar(){
   document.getElementById('vdetail-cal-title').textContent = `${vdetailYear}년 ${vdetailMonth+1}월`;
 
@@ -1358,13 +1570,13 @@ function renderVdetailCalendar(){
   for(let i=0;i<firstDay;i++) cells += `<div class="resv-day empty"></div>`;
   for(let d=1; d<=daysInMonth; d++){
     const dateKey = toDateKey(vdetailYear, vdetailMonth, d);
-    const has = !!recordMap[dateKey];
+    const rec = recordMap[dateKey];
     const isToday = dateKey===tKey;
     const isSelected = dateKey===vdetailSelectedDate;
     cells += `
       <div class="resv-day${isToday?' today':''}${isSelected?' selected':''}" onclick="vdetailSelectDate('${dateKey}')">
         <div class="rd-num">${d}</div>
-        ${has?`<div class="rd-dot">✓</div>`:''}
+        ${rec?`<div class="rd-dot ${rec.service_type}">${rec.service_type==='subscription'?'구':'1'}</div>`:''}
       </div>`;
   }
   document.getElementById('vdetail-cal-grid').innerHTML = cells;
@@ -1384,27 +1596,42 @@ function renderVdetailRecordPanel(){
       <div class="resv-list-section">
         <div class="resv-list-header"><div class="resv-list-title">${dateLabel} 세차 기록</div></div>
         <div class="veh-record-card">
-          <label class="mg-label">특이사항</label>
+          <label class="mg-label">서비스 종류</label>
+          <select class="mg-input" id="vdetail-service-type">
+            <option value="onetime"${(!record||record.service_type==='onetime')?' selected':''}>일회성 세차</option>
+            <option value="subscription"${record&&record.service_type==='subscription'?' selected':''}>구독 서비스</option>
+          </select>
+          <label class="mg-label" style="margin-top:14px;">진행 상태</label>
+          <select class="mg-input" id="vdetail-status">
+            <option value="scheduled"${(!record||record.status==='scheduled')?' selected':''}>예정</option>
+            <option value="washing"${record&&record.status==='washing'?' selected':''}>세차중</option>
+            <option value="done"${record&&record.status==='done'?' selected':''}>세차완료</option>
+          </select>
+          <label class="mg-label" style="margin-top:14px;">특이사항</label>
           <textarea class="mg-input veh-record-note" id="vdetail-note" placeholder="특이사항을 입력하세요">${record?escapeHtml(record.note||''):''}</textarea>
           <label class="mg-label" style="margin-top:14px;">사진</label>
           <div id="vdetail-photo-section"></div>
           <div class="veh-record-actions">
             ${record?`<button class="resv-cancel-btn" onclick="deleteWashRecord('${record.id}')">기록 삭제</button>`:''}
-            <button class="resv-save-btn" onclick="saveWashRecord()">${record?'수정 저장':'완료 등록'}</button>
+            <button class="resv-save-btn" onclick="saveWashRecord()">저장</button>
           </div>
         </div>
       </div>`;
     renderVdetailPhotoSection(record);
   } else {
     if(!record){
-      el.innerHTML = `<div class="resv-empty">📅 ${dateLabel}에는 세차 기록이 없습니다</div>`;
+      el.innerHTML = `<div class="resv-empty">📅 ${dateLabel}에는 예정된 세차가 없습니다</div>`;
       return;
     }
     const photos = record.wash_record_photos || [];
     el.innerHTML = `
       <div class="resv-list-section">
-        <div class="resv-list-header"><div class="resv-list-title">${dateLabel} 세차 완료</div></div>
+        <div class="resv-list-header">
+          <div class="resv-list-title">${dateLabel}</div>
+          <span class="veh-wash-badge ${record.status}">${WASH_STATUS_LABELS[record.status]}</span>
+        </div>
         <div class="veh-record-card">
+          <div class="veh-service-type-label">${WASH_SERVICE_TYPE_LABELS[record.service_type]}</div>
           <div class="veh-card-note">${record.note?escapeHtml(record.note):'등록된 특이사항이 없습니다'}</div>
           ${photos.length?`<div class="veh-photo-scroll" style="margin-top:10px;">${photos.map(p=>`<img src="${p.photo_url}" class="veh-photo-thumb">`).join('')}</div>`:''}
         </div>
@@ -1443,20 +1670,22 @@ async function ensureWashRecord(){
 
 async function saveWashRecord(){
   if(!supabase || !isAdmin) return;
+  const serviceType = document.getElementById('vdetail-service-type').value;
+  const status = document.getElementById('vdetail-status').value;
   const note = document.getElementById('vdetail-note').value.trim();
   if(!validateInputs(note)){ showBadwordModal(); return; }
   const existing = WASH_RECORDS.find(r=>r.wash_date === vdetailSelectedDate);
   let error;
   if(existing){
-    ({error} = await supabase.from('wash_records').update({note: note||null}).eq('id', existing.id));
+    ({error} = await supabase.from('wash_records').update({service_type: serviceType, status, note: note||null}).eq('id', existing.id));
   } else {
     ({error} = await supabase.from('wash_records')
-      .insert({vehicle_id: vdetailVehicleId, wash_date: vdetailSelectedDate, note: note||null}));
+      .insert({vehicle_id: vdetailVehicleId, wash_date: vdetailSelectedDate, service_type: serviceType, status, note: note||null}));
   }
   if(error){ showToast('저장 실패: '+error.message); return; }
   await fetchWashRecords();
   renderVdetailCalendar();
-  showToast(existing?'✏️ 기록이 수정되었습니다':'✅ 세차 완료로 등록되었습니다');
+  showToast(existing?'✏️ 기록이 수정되었습니다':'✅ 저장되었습니다');
 }
 
 async function deleteWashRecord(id){
@@ -1513,6 +1742,8 @@ const TOSS_PENDING_PLAN_KEY = 'carwash_pending_plan';
 let SUBSCRIPTION_PLANS = [];
 let CURRENT_SUBSCRIPTION = null;
 let _selectedPlanId = null;
+let _selectedCarSize = '소형';
+const SUB_FREQUENCY_LABELS = { weekly: '주 1회', twice_weekly: '주 2회', biweekly: '격주 1회' };
 
 let ALL_SUBSCRIPTIONS = [];
 
@@ -1542,6 +1773,19 @@ async function fetchMySubscription(){
     .select('*').eq('user_id', currentUser.id)
     .order('created_at', {ascending:false}).limit(1).maybeSingle();
   if(!error) CURRENT_SUBSCRIPTION = data || null;
+}
+
+let subscriptionUsageCount = 0;
+async function fetchSubscriptionUsage(){
+  subscriptionUsageCount = 0;
+  if(!supabase || !CURRENT_SUBSCRIPTION || !CURRENT_SUBSCRIPTION.synced_vehicle_id) return;
+  const now = new Date();
+  const monthStart = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
+  const {count, error} = await supabase.from('wash_records')
+    .select('id', {count:'exact', head:true})
+    .eq('vehicle_id', CURRENT_SUBSCRIPTION.synced_vehicle_id)
+    .gte('wash_date', monthStart);
+  if(!error) subscriptionUsageCount = count || 0;
 }
 
 async function fetchAllSubscriptions(){
@@ -1607,10 +1851,16 @@ function renderSubscribePage(){
   const planListEl = document.getElementById('sub-plan-list');
   const applyBtn = document.getElementById('sub-apply-btn');
   const adminListEl = document.getElementById('sub-admin-list');
+  const sizeTabsEl = document.getElementById('sub-size-tabs');
+  const detailEl = document.getElementById('sub-plan-detail');
+  const addcarEl = document.getElementById('sub-addcar-notice');
 
   if(isAdmin){
     statusEl.innerHTML = '';
     planListEl.style.display = 'none';
+    sizeTabsEl.style.display = 'none';
+    detailEl.style.display = 'none';
+    addcarEl.style.display = 'none';
     applyBtn.style.display = 'none';
     adminListEl.style.display = '';
 
@@ -1644,6 +1894,8 @@ function renderSubscribePage(){
   }
 
   planListEl.style.display = '';
+  sizeTabsEl.style.display = '';
+  addcarEl.style.display = '';
   adminListEl.style.display = 'none';
 
   if(CURRENT_SUBSCRIPTION && CURRENT_SUBSCRIPTION.status === 'active'){
@@ -1655,13 +1907,39 @@ function renderSubscribePage(){
     applyBtn.style.display = '';
   }
 
-  if(!_selectedPlanId && SUBSCRIPTION_PLANS.length) _selectedPlanId = SUBSCRIPTION_PLANS[0].id;
+  const sizes = ['소형','중형','대형'];
+  sizeTabsEl.innerHTML = sizes.map(sz=>
+    `<div class="sub-size-tab${sz===_selectedCarSize?' selected':''}" onclick="selectSubCarSize('${sz}')">${sz}</div>`
+  ).join('');
 
-  planListEl.innerHTML = SUBSCRIPTION_PLANS.map(p=>`
+  const plansForSize = SUBSCRIPTION_PLANS.filter(p=>p.car_size===_selectedCarSize);
+  if(!_selectedPlanId || !plansForSize.some(p=>p.id===_selectedPlanId)){
+    _selectedPlanId = plansForSize.length ? plansForSize[0].id : null;
+  }
+
+  planListEl.innerHTML = plansForSize.map(p=>`
     <div class="sub-plan-card${p.id===_selectedPlanId?' selected':''}" onclick="selectSubscribePlan('${p.id}')">
       <div class="sub-plan-name">${escapeHtml(p.name)}</div>
       <div class="sub-plan-price">${p.price>0? p.price.toLocaleString()+'원 / 월' : '가격 안내 예정'}</div>
     </div>`).join('');
+
+  const selectedPlan = plansForSize.find(p=>p.id===_selectedPlanId);
+  if(selectedPlan && selectedPlan.frequency === 'weekly' && selectedPlan.visits_per_month){
+    const perVisit = Math.round(selectedPlan.price / selectedPlan.visits_per_month);
+    detailEl.style.display = '';
+    detailEl.innerHTML = `
+      <div>월 <strong>${selectedPlan.visits_per_month}회</strong> 방문 · 회당 약 <strong>${perVisit.toLocaleString()}원</strong>꼴로 이용하실 수 있어요.</div>
+      <div>매주 1회, 정기적으로 방문해 항상 깨끗한 상태를 유지해드립니다.</div>`;
+  } else {
+    detailEl.style.display = 'none';
+    detailEl.innerHTML = '';
+  }
+}
+
+function selectSubCarSize(size){
+  _selectedCarSize = size;
+  _selectedPlanId = null;
+  renderSubscribePage();
 }
 
 function selectSubscribePlan(id){
@@ -1855,16 +2133,17 @@ Object.assign(window, {
   closeAdminLoginModal, closeAptModal, closeBadwordModal, closeRequiredModal, closeReservationModal,
   closeVehicleDeleteModal, closeVehicleModal, confirmSubscription,
   confirmVehicleDelete, deleteVehicleFromForm, deleteWashRecord, deleteWashRecordPhoto,
-  goBooking, goFaq, goFaqOrInquiries, goHome, goInquiries, goInquiryDetail, goInquiryForm,
+  goBooking, goBookingBack, goFaq, goFaqOrInquiries, goGallery, goHome, goInquiries, goInquiryDetail, goInquiryForm,
   goMenu, goNotifications, goResvDay, goResvDetail, goStory, goSubscribe, goVehDay, goVehicleDetail, goVehicles, handleWashRecordPhotoInput,
   kakaoLogin, kakaoLogout, onVehBrandChange, onVehModelChange, openAdminLoginModal, openAptModal,
   openReservationModal, openVehicleModal, saveApartmentComplex, saveInquiry, saveInquiryReply, saveReservation,
-  saveVehicle, saveWashRecord, selectBookingSlot, selectCalDate, selectSubscribePlan, showToast, testCustomerLogin, toggleFaqItem,
+  saveVehicle, saveWashRecord, selectBookingSlot, selectCalDate, selectRvWashType, selectSubCarSize, selectSubscribePlan, showToast, testCustomerLogin, toggleFaqItem,
   toggleNotifCategory, updateVehBrandOptions, updateVehModelOptions, vdetailSelectDate, vdetailShiftMonth,
   vehCalShiftMonth
 });
 
 renderLoginBar();
+renderHome();
 handleBillingRedirect();
 
 const kakaoReturnPage = localStorage.getItem(KAKAO_RETURN_PAGE_KEY);
