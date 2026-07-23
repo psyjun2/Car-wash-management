@@ -31,8 +31,8 @@ serve(async (req) => {
     }
     const user = userData.user;
 
-    const { authKey, customerKey, planId } = await req.json();
-    if (!authKey || !customerKey || !planId) {
+    const { authKey, customerKey, planId, updateSubscriptionId } = await req.json();
+    if (!authKey || !customerKey || (!planId && !updateSubscriptionId)) {
       return new Response(JSON.stringify({ error: "필수 파라미터 누락" }), { status: 400 });
     }
     if (customerKey !== user.id) {
@@ -52,6 +52,28 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: issueData.message || "빌링키 발급 실패" }), { status: 400 });
     }
     const billingKey = issueData.billingKey;
+
+    // 1-b) 카드 변경 모드: 신규 구독 생성 없이, 본인 소유 기존 구독의 billingKey만 교체
+    if (updateSubscriptionId) {
+      const { data: existingSub, error: existErr } = await admin
+        .from("subscriptions")
+        .select("id, user_id")
+        .eq("id", updateSubscriptionId)
+        .single();
+      if (existErr || !existingSub || existingSub.user_id !== user.id) {
+        return new Response(JSON.stringify({ error: "본인 구독만 카드를 변경할 수 있습니다" }), { status: 403 });
+      }
+      const { error: updErr } = await admin
+        .from("subscriptions")
+        .update({ billing_key: billingKey, toss_customer_key: customerKey })
+        .eq("id", updateSubscriptionId);
+      if (updErr) {
+        return new Response(JSON.stringify({ error: updErr.message }), { status: 500 });
+      }
+      return new Response(JSON.stringify({ ok: true }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
     // 2) 플랜 조회
     const { data: plan, error: planErr } = await admin

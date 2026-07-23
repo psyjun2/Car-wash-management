@@ -20,6 +20,7 @@ serve(async (_req) => {
     .from("subscriptions")
     .select("*, subscription_plans(*)")
     .eq("status", "active")
+    .eq("auto_renew", true)
     .lte("next_billing_date", today);
 
   if (error) {
