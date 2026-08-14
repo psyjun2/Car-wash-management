@@ -218,6 +218,9 @@ input, textarea {
 .hero-guest-cta[aria-disabled="true"]{cursor:default;}
 .hero-guest-cta[aria-disabled="true"]:active{transform:none;}
 
+.hero-guest-loggedin .hero-guest-title{font-size:27px;margin-bottom:8px;}
+.hero-guest-loggedin .hero-guest-sub{font-size:15px;margin-bottom:0;}
+
 .hero-status{background:var(--white);padding:22px;}
 .hero-status-label{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px;}
 .hero-dday-row{display:flex;align-items:baseline;gap:8px;margin-bottom:14px;}

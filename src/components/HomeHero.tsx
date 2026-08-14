@@ -95,16 +95,13 @@ export function HomeHero({ isAdmin, isLoggedIn, upcomingReservation, subscriptio
   }
 
   return (
-    <div className="home-hero hero-guest">
+    <div className="home-hero hero-guest hero-guest-loggedin">
       <div className="hero-tag">★ 예약제 진행</div>
       <div className="hero-guest-title">
         프리미엄 출장세차,
         <br />월 {MONTHLY_LIMIT}대만 관리합니다.
       </div>
       <div className="hero-guest-sub">지금 예약하면 바로 배정됩니다</div>
-      <div className="hero-guest-cta hero-guest-cta-blue" aria-disabled="true">
-        지금 예약하기
-      </div>
     </div>
   );
 }

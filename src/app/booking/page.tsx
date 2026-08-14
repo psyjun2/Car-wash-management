@@ -6,11 +6,13 @@ import { VehicleRequiredNotice } from "@/components/VehicleRequiredNotice";
 import { getSessionInfo, kakaoNickname } from "@/lib/auth/session";
 import { listReservations } from "@/lib/data/reservations";
 import { listVehicles } from "@/lib/data/vehicles";
+import { getServiceAreaLines } from "@/lib/data/settings";
 
 export default async function BookingPage() {
   const { user, isAdmin } = await getSessionInfo();
   const reservations = user ? await listReservations({ userId: user.id, isAdmin }) : [];
   const hasVehicle = user && !isAdmin ? (await listVehicles({ userId: user.id, isAdmin: false })).length > 0 : true;
+  const areaLines = await getServiceAreaLines();
 
   return (
     <div className="page on" id="pg-booking">
@@ -32,7 +34,9 @@ export default async function BookingPage() {
 
           {user && !isAdmin && !hasVehicle && <VehicleRequiredNotice returnTo="/booking" />}
 
-          {user && (isAdmin || hasVehicle) && <BookingView reservations={reservations} isAdmin={isAdmin} userId={user.id} />}
+          {user && (isAdmin || hasVehicle) && (
+            <BookingView reservations={reservations} isAdmin={isAdmin} userId={user.id} areaLines={areaLines} />
+          )}
         </div>
       </div>
       <BottomNav />

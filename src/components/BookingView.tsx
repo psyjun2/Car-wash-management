@@ -9,7 +9,17 @@ import { BOOKING_SLOTS } from "@/lib/pricing";
 
 const DOW = ["일", "월", "화", "수", "목", "금", "토"];
 
-export function BookingView({ reservations, isAdmin, userId }: { reservations: Reservation[]; isAdmin: boolean; userId: string }) {
+export function BookingView({
+  reservations,
+  isAdmin,
+  userId,
+  areaLines,
+}: {
+  reservations: Reservation[];
+  isAdmin: boolean;
+  userId: string;
+  areaLines: string[];
+}) {
   const router = useRouter();
   const now = new Date();
   const [viewYear, setViewYear] = useState(now.getFullYear());
@@ -53,12 +63,12 @@ export function BookingView({ reservations, isAdmin, userId }: { reservations: R
       <div className="resv-area-box">
         <div className="resv-area-title">📍 현재 방문가능지역</div>
         <div className="resv-area-text">
-          서울지역 → 강서구
-          <br />
-          김포지역 → 고촌,풍무,사우동
-          <br />
-          <br />
-          (원하시는 지역이 있다면 고객센터로 문의바랍니다.)
+          {areaLines.map((line, i) => (
+            <span key={i}>
+              {line}
+              {i < areaLines.length - 1 && <br />}
+            </span>
+          ))}
         </div>
       </div>
 
