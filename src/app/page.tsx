@@ -19,6 +19,12 @@ export default async function HomePage() {
   let upcomingReservation: UpcomingReservation | null = null;
   let subscriptionUsage: SubscriptionUsage | null = null;
   let subPriceLabel = "정기구독으로 더 합리적으로";
+  let pendingCount = 0;
+
+  if (user && isAdmin) {
+    const reservations = await listReservations({ userId: user.id, isAdmin: true });
+    pendingCount = reservations.filter((r) => r.status === "pending" || r.status === "awaiting_payment").length;
+  }
 
   if (user && !isAdmin) {
     const [reservations, mySubscription, plans, vehicles] = await Promise.all([
@@ -63,7 +69,15 @@ export default async function HomePage() {
           오늘도 <em>출세</em>했다
         </div>
         <div className="tb-right-icons">
-          {/* TODO(Phase 8): admin notification bell, once /admin/notifications exists */}
+          {isAdmin && (
+            <Link href="/admin/notifications" className="bell-btn" aria-label="알림">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+              {pendingCount > 0 && <span className="bell-dot" />}
+            </Link>
+          )}
           <Link href="/menu" className="hamburger-btn" aria-label="메뉴">
             <span></span>
             <span></span>

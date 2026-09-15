@@ -24,8 +24,11 @@ export function VehiclesView({ vehicles, isAdmin }: { vehicles: Vehicle[]; isAdm
   const list = useMemo(() => {
     let l = vehicles;
     if (q) l = l.filter((v) => (v.car_num || "").toLowerCase().includes(q));
+    // Admin browsing everything (no search) — newest registration first, so a
+    // just-registered car doesn't get buried at the bottom of a long list.
+    if (isAdmin && !q) l = [...l].reverse();
     return l;
-  }, [vehicles, q]);
+  }, [vehicles, q, isAdmin]);
 
   const countByDate = useMemo(() => {
     const map: Record<string, number> = {};
@@ -120,11 +123,11 @@ export function VehiclesView({ vehicles, isAdmin }: { vehicles: Vehicle[]; isAdm
       )}
 
       <div id="veh-list">
-        {isAdmin && !q
-          ? null
-          : list.length === 0
-            ? <div className="resv-empty">🚗 {isAdmin ? "검색된 차량이 없습니다" : "등록된 차량이 없습니다"}</div>
-            : list.map((v) => <VehicleCard key={v.id} vehicle={v} isAdmin={isAdmin} onAskDelete={setDeleteTarget} />)}
+        {list.length === 0 ? (
+          <div className="resv-empty">🚗 {isAdmin && q ? "검색된 차량이 없습니다" : "등록된 차량이 없습니다"}</div>
+        ) : (
+          list.map((v) => <VehicleCard key={v.id} vehicle={v} isAdmin={isAdmin} onAskDelete={setDeleteTarget} />)
+        )}
       </div>
 
       <DeleteVehicleModal

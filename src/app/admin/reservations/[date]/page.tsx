@@ -44,6 +44,9 @@ export default async function AdminReservationDayPage({ params }: Params) {
                         </span>
                       )}
                       {r.is_addon && <span className="resv-status-badge accepted">구독 추가</span>}
+                      {r.status === "pending" && <span className="resv-status-badge pending">🔔 승인 대기</span>}
+                      {r.status === "awaiting_payment" && <span className="resv-status-badge awaiting_payment">💰 결제 대기</span>}
+                      {r.status === "rejected" && <span className="resv-status-badge rejected">거절됨</span>}
                     </div>
                     {r.loc && <div className="resv-loc">📍 {r.loc}</div>}
                     {r.phone && <div className="resv-phone">📞 {r.phone}</div>}

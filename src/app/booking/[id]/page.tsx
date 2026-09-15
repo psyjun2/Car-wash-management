@@ -1,12 +1,21 @@
 import { notFound, redirect } from "next/navigation";
 import { TopBarBack } from "@/components/TopBarBack";
 import { ReservationDetailActions } from "@/components/ReservationDetailActions";
+import { ReservationAdminActions } from "@/components/ReservationAdminActions";
+import { ReservationPaymentButton } from "@/components/ReservationPaymentButton";
 import { getSessionInfo } from "@/lib/auth/session";
 import { getReservation } from "@/lib/data/reservations";
 
 type Params = { params: Promise<{ id: string }> };
 
 const DOW = ["일", "월", "화", "수", "목", "금", "토"];
+
+const STATUS_LABEL: Record<string, string> = {
+  pending: "🔔 승인 대기",
+  awaiting_payment: "💰 결제 대기",
+  accepted: "✅ 예약 확정",
+  rejected: "❌ 예약 거절",
+};
 
 export default async function ReservationDetailPage({ params }: Params) {
   const { id } = await params;
@@ -47,12 +56,16 @@ export default async function ReservationDetailPage({ params }: Params) {
                 {r.loc && <div className="veh-card-note">📍 {r.loc}</div>}
                 {r.note && <div className="veh-card-note">📝 {r.note}</div>}
               </div>
+              <div className={`resv-status-badge ${r.status}`} style={{ marginTop: 14 }}>
+                {STATUS_LABEL[r.status]}
+              </div>
               {isAdmin ? (
-                <div className="resv-status-badge accepted" style={{ marginTop: 14 }}>
-                  💳 결제완료
-                </div>
+                <ReservationAdminActions reservationId={r.id} status={r.status} />
               ) : (
-                <ReservationDetailActions reservationId={r.id} />
+                <>
+                  {r.status === "awaiting_payment" && <ReservationPaymentButton />}
+                  <ReservationDetailActions reservationId={r.id} />
+                </>
               )}
             </div>
           </div>

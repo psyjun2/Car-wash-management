@@ -124,11 +124,20 @@ export default async function MenuPage() {
               {isAdmin && (
                 <div className="menu-group" id="menu-admin-group">
                   <div className="menu-group-title">관리자 설정</div>
-                  <div className="menu-item">
-                    <div className="menu-item-text">
-                      <div className="mi-lbl">알림 설정 (준비 중)</div>
+                  <Link href="/admin/notifications" className="menu-item">
+                    <div className="menu-item-icon">
+                      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                      </svg>
                     </div>
-                  </div>
+                    <div className="menu-item-text">
+                      <div className="mi-lbl">알림 확인</div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </Link>
                 </div>
               )}
             </div>

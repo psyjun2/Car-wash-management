@@ -669,6 +669,7 @@ input, textarea {
   display:inline-block;font-size:12px;font-weight:700;padding:4px 11px;border-radius:20px;margin-top:4px;
 }
 .resv-status-badge.pending{background:rgba(37,99,235,.08);color:var(--blue);}
+.resv-status-badge.awaiting_payment{background:rgba(217,119,6,.1);color:#d97706;}
 .resv-status-badge.accepted{background:rgba(22,163,74,.1);color:var(--green);}
 .resv-status-badge.rejected{background:rgba(220,38,38,.1);color:#dc2626;}
 
